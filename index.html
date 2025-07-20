@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flutter Hello World - 我的第一個Flutter專案</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .project-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .info-card h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .feature-list {
+            list-style: none;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: "✅ ";
+            color: #28a745;
+        }
+
+        .screenshots {
+            margin: 40px 0;
+        }
+
+        .screenshots h2 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .screenshot-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .screenshot-item {
+            text-align: center;
+        }
+
+        .screenshot-item img {
+            width: 100%;
+            max-width: 300px;
+            height: auto;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .screenshot-item img:hover {
+            transform: scale(1.05);
+        }
+
+        .screenshot-item p {
+            margin-top: 10px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .tech-stack {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 30px 0;
+        }
+
+        .tech-stack h2 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .tech-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .tech-item strong {
+            color: #667eea;
+        }
+
+        .links {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 30px;
+            margin: 10px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .main-content {
+                padding: 20px;
+            }
+            
+            .project-info {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Flutter Hello World</h1>
+            <p>我的第一個Flutter專案 - 完整的移動應用程式開發實踐</p>
+        </div>
+
+        <div class="main-content">
+            <div class="project-info">
+                <div class="info-card">
+                    <h3>📱 專案概述</h3>
+                    <p>這是一個完整的Flutter應用程式，展示了現代移動應用開發的最佳實踐，包括狀態管理、響應式設計、測試覆蓋等核心功能。</p>
+                </div>
+
+                <div class="info-card">
+                    <h3>🎯 核心功能</h3>
+                    <ul class="feature-list">
+                        <li>完整的用戶認證系統</li>
+                        <li>Provider狀態管理</li>
+                        <li>響應式設計</li>
+                        <li>SQLite本地數據庫</li>
+                        <li>API整合與離線支援</li>
+                        <li>側邊欄導航系統</li>
+                        <li>主題切換功能</li>
+                        <li>完整的測試覆蓋</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="screenshots">
+                <h2>📸 應用程式截圖</h2>
+                <div class="screenshot-grid">
+                    <div class="screenshot-item">
+                        <img src="screenshots/login_screen.png" alt="登入頁面">
+                        <p>登入頁面</p>
+                    </div>
+                    <div class="screenshot-item">
+                        <img src="screenshots/main_screen.png" alt="主頁面">
+                        <p>主頁面</p>
+                    </div>
+                    <div class="screenshot-item">
+                        <img src="screenshots/sidebar.png" alt="側邊欄">
+                        <p>側邊欄導航</p>
+                    </div>
+                    <div class="screenshot-item">
+                        <img src="screenshots/screen_a.png" alt="Screen A">
+                        <p>Screen A</p>
+                    </div>
+                    <div class="screenshot-item">
+                        <img src="screenshots/screen_b.png" alt="Screen B">
+                        <p>Screen B</p>
+                    </div>
+                    <div class="screenshot-item">
+                        <img src="screenshots/screen_c.png" alt="Screen C">
+                        <p>Screen C</p>
+                    </div>
+                    <div class="screenshot-item">
+                        <img src="screenshots/logout_dialog.png" alt="登出確認">
+                        <p>登出確認對話框</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tech-stack">
+                <h2>🛠️ 技術棧</h2>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <strong>Flutter</strong><br>
+                        <span>跨平台框架</span>
+                    </div>
+                    <div class="tech-item">
+                        <strong>Dart</strong><br>
+                        <span>程式語言</span>
+                    </div>
+                    <div class="tech-item">
+                        <strong>Provider</strong><br>
+                        <span>狀態管理</span>
+                    </div>
+                    <div class="tech-item">
+                        <strong>SQLite</strong><br>
+                        <span>本地數據庫</span>
+                    </div>
+                    <div class="tech-item">
+                        <strong>Cupertino</strong><br>
+                        <span>iOS風格UI</span>
+                    </div>
+                    <div class="tech-item">
+                        <strong>Responsive</strong><br>
+                        <span>響應式設計</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="links">
+                <a href="https://github.com/maxhero7350/Flutter_hello_world" class="btn" target="_blank">
+                    📂 查看源代碼
+                </a>
+                <a href="https://gitlab.webotopia.work/maxhero/flutter_hello_world" class="btn btn-secondary" target="_blank">
+                    🔗 GitLab 倉庫
+                </a>
+                <a href="https://flutter.dev" class="btn btn-secondary" target="_blank">
+                    🎯 Flutter 官網
+                </a>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2024 Flutter Hello World Project | 由 maxhero7350 開發</p>
+        </div>
+    </div>
+</body>
+</html> 
