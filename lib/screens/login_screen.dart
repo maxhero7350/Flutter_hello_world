@@ -62,12 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // STEP 02.07: 導航到主頁面
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          CupertinoPageRoute(
-            builder: (context) => const MainScreen(),
-          ),
-        );
+        Navigator.pushReplacementNamed(context, '/main');
       }
     } catch (e) {
       // STEP 02.08: 處理錯誤
@@ -95,12 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
     appStateProvider.setFirstRun(false);
     
     // STEP 03.04: 導航到主頁面
-    Navigator.pushReplacement(
-      context,
-      CupertinoPageRoute(
-        builder: (context) => const MainScreen(),
-      ),
-    );
+    Navigator.pushReplacementNamed(context, '/main');
   }
 
   /// STEP 04: 顯示提示對話框

@@ -265,8 +265,14 @@ class CustomSidebar extends StatelessWidget {
                 appStateProvider.reset();
                 navigationProvider.resetNavigation();
                 
-                // STEP 05.03: 返回登入頁面
-                Navigator.of(context).popUntil((route) => route.isFirst);
+                // STEP 05.03: 關閉對話框
+                Navigator.of(context).pop();
+                
+                // STEP 05.04: 導航到登入頁面並清除所有路由
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/',
+                  (route) => false,
+                );
               },
             ),
           ],

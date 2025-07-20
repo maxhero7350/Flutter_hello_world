@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'providers/providers.dart';
 import 'screens/login_screen.dart';
+import 'screens/main_screen.dart';
 import 'utils/constants.dart';
 
 void main() {
@@ -41,7 +42,11 @@ class HelloWorldApp extends StatelessWidget {
           return CupertinoApp(
             title: Constants.APP_NAME,
             theme: themeProvider.currentTheme,
-            home: const LoginScreen(),
+            initialRoute: '/',
+            routes: {
+              '/': (context) => const LoginScreen(),
+              '/main': (context) => const MainScreen(),
+            },
             debugShowCheckedModeBanner: false,
             builder: (context, child) {
               // STEP 03: 響應式設計包裝器
