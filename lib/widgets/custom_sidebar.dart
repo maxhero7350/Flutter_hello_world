@@ -1,10 +1,13 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/providers.dart';
 import '../utils/constants.dart';
-import '../screens/login_screen.dart';
+import '../utils/screen_util.dart';
+import '../widgets/responsive_layout.dart';
 
 /// 自定義側邊欄
-/// 包含使用者資訊、導航項目和設定選項
+/// 提供導航功能和設定選項
 class CustomSidebar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onItemTapped;
@@ -15,147 +18,170 @@ class CustomSidebar extends StatelessWidget {
     required this.onItemTapped,
   });
 
-  /// STEP 01: 建立側邊欄標題
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(
-            color: CupertinoColors.systemGrey4,
-            width: 0.5,
+  /// STEP 01: 建立響應式標頭
+  Widget _buildHeader(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        // STEP 01.01: 取得用戶資訊
+        final displayName = userProvider.getDisplayName();
+        final isLoggedIn = userProvider.isLoggedIn;
+        
+        // STEP 01.02: 構建響應式標頭
+        return ResponsiveContainer(
+          padding: ScreenUtil.instance.responsivePadding(all: 20),
+          decoration: BoxDecoration(
+            color: CupertinoColors.systemBlue,
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(16.r),
+              bottomRight: Radius.circular(16.r),
+            ),
           ),
-        ),
-      ),
-      child: const SafeArea(
-        bottom: false,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // STEP 01.01: 用戶頭像
-            Icon(
-              CupertinoIcons.person_circle_fill,
-              size: Constants.ICON_SIZE_EXTRA_LARGE * 1.5,
-              color: CupertinoColors.systemBlue,
-            ),
-            SizedBox(height: Constants.SPACING_MEDIUM),
-            
-            // STEP 01.02: 用戶名稱
-            Text(
-              Constants.DEFAULT_USERNAME,
-              style: TextStyle(
-                fontSize: Constants.FONT_SIZE_LARGE,
-                fontWeight: FontWeight.bold,
-                color: CupertinoColors.label,
-              ),
-            ),
-            SizedBox(height: Constants.SPACING_SMALL),
-            
-            // STEP 01.03: 歡迎訊息
-            Text(
-              '歡迎使用 ${Constants.APP_NAME}',
-              style: TextStyle(
-                fontSize: Constants.FONT_SIZE_MEDIUM,
-                color: CupertinoColors.secondaryLabel,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  /// STEP 02: 建立導航項目
-  Widget _buildNavigationItem({
-    required String title,
-    required IconData icon,
-    required int index,
-    required BuildContext context,
-  }) {
-    final isSelected = selectedIndex == index;
-    
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: Constants.SPACING_MEDIUM,
-        vertical: Constants.SPACING_SMALL / 2,
-      ),
-      decoration: BoxDecoration(
-        color: isSelected 
-            ? CupertinoColors.activeBlue.withOpacity(0.1)
-            : const Color(0x00000000),
-        borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
-      ),
-      child: CupertinoButton(
-        padding: const EdgeInsets.all(Constants.SPACING_MEDIUM),
-        onPressed: () {
-          onItemTapped(index);
-          Navigator.of(context).pop(); // 關閉側邊欄
-        },
-        child: Row(
-          children: [
-            Icon(
-              icon,
-              color: isSelected 
-                  ? CupertinoColors.activeBlue
-                  : CupertinoColors.systemGrey,
-              size: Constants.ICON_SIZE_MEDIUM,
-            ),
-            const SizedBox(width: Constants.SPACING_MEDIUM),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  color: isSelected 
-                      ? CupertinoColors.activeBlue
-                      : CupertinoColors.label,
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  fontSize: Constants.FONT_SIZE_MEDIUM,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // STEP 01.03: 用戶頭像
+              ResponsiveContainer(
+                decoration: BoxDecoration(
+                  color: CupertinoColors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                padding: ScreenUtil.instance.responsivePadding(all: 12),
+                child: Icon(
+                  CupertinoIcons.person_fill,
+                  color: CupertinoColors.white,
+                  size: ScreenUtil.instance.responsiveIconSize(32),
                 ),
               ),
-            ),
-          ],
-        ),
-      ),
+              ResponsiveSpacing(spacing: 12),
+              
+              // STEP 01.04: 用戶名稱
+              ResponsiveText(
+                displayName,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: CupertinoColors.white,
+              ),
+              ResponsiveSpacing(spacing: 4),
+              
+              // STEP 01.05: 狀態指示
+              ResponsiveText(
+                isLoggedIn ? '已登入' : '訪客模式',
+                fontSize: 14,
+                color: CupertinoColors.white.withOpacity(0.8),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  /// STEP 03: 建立設定項目
-  Widget _buildSettingItem({
-    required String title,
+  /// STEP 02: 建立響應式導航項目
+  Widget _buildNavigationItem({
     required IconData icon,
+    required String title,
+    required int index,
     required VoidCallback onTap,
-    Color? iconColor,
-    Color? textColor,
   }) {
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        horizontal: Constants.SPACING_MEDIUM,
-        vertical: Constants.SPACING_SMALL / 2,
+    // STEP 02.01: 檢查是否為選中狀態
+    final isSelected = selectedIndex == index;
+    
+    // STEP 02.02: 構建響應式導航項目
+    return ResponsiveContainer(
+      margin: ScreenUtil.instance.responsivePadding(
+        horizontal: 12,
+        vertical: 4,
       ),
       child: CupertinoButton(
-        padding: const EdgeInsets.all(Constants.SPACING_MEDIUM),
+        padding: ScreenUtil.instance.responsivePadding(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        color: isSelected 
+            ? CupertinoColors.systemBlue.withOpacity(0.1) 
+            : null,
+        borderRadius: ScreenUtil.instance.responsiveBorderRadius(8),
         onPressed: onTap,
         child: Row(
           children: [
+            // STEP 02.03: 響應式圖標
             Icon(
               icon,
-              color: iconColor ?? CupertinoColors.systemGrey,
-              size: Constants.ICON_SIZE_MEDIUM,
+              color: isSelected 
+                  ? CupertinoColors.systemBlue 
+                  : CupertinoColors.label,
+              size: ScreenUtil.instance.responsiveIconSize(24),
             ),
-            const SizedBox(width: Constants.SPACING_MEDIUM),
+            ResponsiveSpacing(spacing: 12, direction: Axis.horizontal),
+            
+            // STEP 02.04: 響應式標題
             Expanded(
-              child: Text(
+              child: ResponsiveText(
                 title,
-                style: TextStyle(
-                  color: textColor ?? CupertinoColors.label,
-                  fontSize: Constants.FONT_SIZE_MEDIUM,
-                ),
+                fontSize: 16,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                color: isSelected 
+                    ? CupertinoColors.systemBlue 
+                    : CupertinoColors.label,
               ),
             ),
-            const Icon(
+            
+            // STEP 02.05: 選中指示器
+            if (isSelected)
+              Icon(
+                CupertinoIcons.chevron_right,
+                color: CupertinoColors.systemBlue,
+                size: ScreenUtil.instance.responsiveIconSize(16),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// STEP 03: 建立響應式設定項目
+  Widget _buildSettingItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+    Color? iconColor,
+  }) {
+    // STEP 03.01: 構建響應式設定項目
+    return ResponsiveContainer(
+      margin: ScreenUtil.instance.responsivePadding(
+        horizontal: 12,
+        vertical: 4,
+      ),
+      child: CupertinoButton(
+        padding: ScreenUtil.instance.responsivePadding(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        onPressed: onTap,
+        child: Row(
+          children: [
+            // STEP 03.02: 響應式圖標
+            Icon(
+              icon,
+              color: iconColor ?? CupertinoColors.secondaryLabel,
+              size: ScreenUtil.instance.responsiveIconSize(24),
+            ),
+            ResponsiveSpacing(spacing: 12, direction: Axis.horizontal),
+            
+            // STEP 03.03: 響應式標題
+            Expanded(
+              child: ResponsiveText(
+                title,
+                fontSize: 16,
+                color: CupertinoColors.secondaryLabel,
+              ),
+            ),
+            
+            // STEP 03.04: 箭頭圖標
+            Icon(
               CupertinoIcons.chevron_right,
-              color: CupertinoColors.systemGrey3,
-              size: Constants.ICON_SIZE_SMALL,
+              color: CupertinoColors.tertiaryLabel,
+              size: ScreenUtil.instance.responsiveIconSize(16),
             ),
           ],
         ),
@@ -169,9 +195,26 @@ class CustomSidebar extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: Text('關於 ${Constants.APP_NAME}'),
-          content: const Text(
-            '這是我的第一個Flutter專案，用於學習基本介面、頁面框架、跳頁和本地端資料庫功能。',
+          title: ResponsiveText(
+            '關於 ${Constants.APP_NAME}',
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ResponsiveSpacing(spacing: 8),
+              ResponsiveText(
+                'Version ${Constants.APP_VERSION}',
+                fontSize: 16,
+              ),
+              ResponsiveSpacing(spacing: 8),
+              ResponsiveText(
+                '這是我的第一個Flutter專案，用於學習和實踐Flutter開發技術。',
+                fontSize: 14,
+                lineHeight: 1.4,
+              ),
+            ],
           ),
           actions: [
             CupertinoDialogAction(
@@ -192,8 +235,15 @@ class CustomSidebar extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
-          title: const Text('登出確認'),
-          content: const Text('確定要登出嗎？'),
+          title: ResponsiveText(
+            '確認登出',
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+          ),
+          content: ResponsiveText(
+            '您確定要登出嗎？',
+            fontSize: 16,
+          ),
           actions: [
             CupertinoDialogAction(
               child: const Text('取消'),
@@ -205,13 +255,18 @@ class CustomSidebar extends StatelessWidget {
               isDestructiveAction: true,
               child: const Text('登出'),
               onPressed: () {
-                Navigator.of(context).pop(); // 關閉對話框
-                Navigator.of(context).pushAndRemoveUntil(
-                  CupertinoPageRoute(
-                    builder: (context) => const LoginScreen(),
-                  ),
-                  (route) => false,
-                );
+                // STEP 05.01: 執行登出操作
+                final userProvider = Provider.of<UserProvider>(context, listen: false);
+                final appStateProvider = Provider.of<AppStateProvider>(context, listen: false);
+                final navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
+                
+                // STEP 05.02: 重置所有狀態
+                userProvider.logout();
+                appStateProvider.reset();
+                navigationProvider.resetNavigation();
+                
+                // STEP 05.03: 返回登入頁面
+                Navigator.of(context).popUntil((route) => route.isFirst);
               },
             ),
           ],
@@ -222,104 +277,89 @@ class CustomSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 280,
-      color: CupertinoColors.systemBackground,
-      child: Column(
-        children: [
-          // STEP 06.01: 標題區域
-          _buildHeader(),
-          
-          // STEP 06.02: 導航項目
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.symmetric(vertical: Constants.SPACING_MEDIUM),
-              children: [
-                // 主要導航
-                _buildNavigationItem(
-                  title: 'A頁面 - 導航練習',
-                  icon: CupertinoIcons.square_grid_2x2,
-                  index: Constants.NAV_INDEX_A,
-                  context: context,
-                ),
-                _buildNavigationItem(
-                  title: 'B頁面 - 資料儲存',
-                  icon: CupertinoIcons.textformat,
-                  index: Constants.NAV_INDEX_B,
-                  context: context,
-                ),
-                _buildNavigationItem(
-                  title: 'C頁面 - API呼叫',
-                  icon: CupertinoIcons.clock,
-                  index: Constants.NAV_INDEX_C,
-                  context: context,
-                ),
-                
-                const SizedBox(height: Constants.SPACING_LARGE),
-                
-                // 分隔線
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: Constants.SPACING_MEDIUM),
-                  height: 0.5,
-                  color: CupertinoColors.systemGrey4,
-                ),
-                
-                const SizedBox(height: Constants.SPACING_MEDIUM),
-                
-                // 設定項目
-                _buildSettingItem(
-                  title: '關於應用程式',
-                  icon: CupertinoIcons.info_circle,
-                  onTap: () => _showAboutDialog(context),
-                ),
-                _buildSettingItem(
-                  title: '應用程式設定',
-                  icon: CupertinoIcons.settings,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    // TODO: 導航到設定頁面
-                  },
-                ),
-              ],
+    // STEP 06: 初始化響應式設計
+    ScreenUtil.instance.init(context);
+    
+    // STEP 06.01: 計算側邊欄寬度
+    double sidebarWidth = ScreenUtil.instance.getSidebarWidth();
+    
+    // STEP 06.02: 構建響應式側邊欄
+    return ResponsiveContainer(
+      widthPercentage: ScreenUtil.instance.deviceType == DeviceType.mobile ? 70 : null,
+      child: Container(
+        width: ScreenUtil.instance.deviceType != DeviceType.mobile ? sidebarWidth : null,
+        decoration: const BoxDecoration(
+          color: CupertinoColors.systemBackground,
+          border: Border(
+            right: BorderSide(
+              color: CupertinoColors.systemGrey4,
+              width: 0.5,
             ),
           ),
-          
-          // STEP 06.03: 底部區域
-          Container(
-            padding: const EdgeInsets.all(Constants.SPACING_MEDIUM),
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  color: CupertinoColors.systemGrey4,
-                  width: 0.5,
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // STEP 06.03: 標頭區域
+              _buildHeader(context),
+              ResponsiveSpacing(spacing: 16),
+              
+              // STEP 06.04: 導航項目區域
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // STEP 06.05: 主要導航項目
+                      _buildNavigationItem(
+                        icon: CupertinoIcons.square_grid_2x2,
+                        title: 'Screen A',
+                        index: Constants.NAV_INDEX_A,
+                        onTap: () => onItemTapped(Constants.NAV_INDEX_A),
+                      ),
+                      _buildNavigationItem(
+                        icon: CupertinoIcons.doc_text,
+                        title: 'Screen B',
+                        index: Constants.NAV_INDEX_B,
+                        onTap: () => onItemTapped(Constants.NAV_INDEX_B),
+                      ),
+                      _buildNavigationItem(
+                        icon: CupertinoIcons.time,
+                        title: 'Screen C',
+                        index: Constants.NAV_INDEX_C,
+                        onTap: () => onItemTapped(Constants.NAV_INDEX_C),
+                      ),
+                      
+                      ResponsiveSpacing(spacing: 24),
+                      
+                      // STEP 06.06: 分隔線
+                      Container(
+                        height: 0.5,
+                        color: CupertinoColors.systemGrey4,
+                        margin: ScreenUtil.instance.responsivePadding(horizontal: 16),
+                      ),
+                      
+                      ResponsiveSpacing(spacing: 16),
+                      
+                      // STEP 06.07: 設定項目
+                      _buildSettingItem(
+                        icon: CupertinoIcons.info_circle,
+                        title: '關於',
+                        onTap: () => _showAboutDialog(context),
+                      ),
+                      _buildSettingItem(
+                        icon: CupertinoIcons.square_arrow_right,
+                        title: '登出',
+                        iconColor: CupertinoColors.systemRed,
+                        onTap: () => _showLogoutConfirmation(context),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            child: SafeArea(
-              top: false,
-              child: Column(
-                children: [
-                  _buildSettingItem(
-                    title: '登出',
-                    icon: CupertinoIcons.square_arrow_left,
-                    iconColor: CupertinoColors.systemRed,
-                    textColor: CupertinoColors.systemRed,
-                    onTap: () => _showLogoutConfirmation(context),
-                  ),
-                  const SizedBox(height: Constants.SPACING_SMALL),
-                  Text(
-                    'Version ${Constants.APP_VERSION}',
-                    style: const TextStyle(
-                      fontSize: Constants.FONT_SIZE_SMALL,
-                      color: CupertinoColors.tertiaryLabel,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
-} 
+}

@@ -1,42 +1,25 @@
 import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 
+import '../providers/providers.dart';
 import '../utils/constants.dart';
+import '../utils/screen_util.dart';
 import '../widgets/custom_sidebar.dart';
 import '../widgets/custom_bottom_nav_bar.dart';
+import '../widgets/responsive_layout.dart';
 import 'screen_a.dart';
 import 'screen_b.dart';
 import 'screen_c.dart';
 
 /// 主頁面
 /// 包含標頭列、側邊欄、底部導航的完整主架構
-class MainScreen extends StatefulWidget {
+class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
-  @override
-  State<MainScreen> createState() => _MainScreenState();
-}
-
-class _MainScreenState extends State<MainScreen> {
-  int _selectedIndex = Constants.NAV_INDEX_A;
-  bool _isSidebarOpen = false;
-
-  /// STEP 01: 處理底部導航點擊
-  void _onTabTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  /// STEP 02: 切換側邊欄狀態
-  void _toggleSidebar() {
-    setState(() {
-      _isSidebarOpen = !_isSidebarOpen;
-    });
-  }
-
-  /// STEP 03: 建立當前頁面內容
-  Widget _buildCurrentPage() {
-    switch (_selectedIndex) {
+  /// STEP 01: 建立當前頁面內容
+  Widget _buildCurrentPage(int selectedIndex) {
+    // STEP 01.01: 根據選中的索引返回對應頁面
+    switch (selectedIndex) {
       case Constants.NAV_INDEX_A:
         return const ScreenA();
       case Constants.NAV_INDEX_B:
@@ -48,84 +31,79 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
-  /// STEP 04: 建立頁面占位符
+  /// STEP 02: 建立響應式頁面占位符
   Widget _buildPagePlaceholder(String title, IconData icon, String description) {
-    return Container(
-      padding: const EdgeInsets.all(Constants.SPACING_LARGE),
+    // STEP 02.01: 返回響應式頁面占位符UI
+    return ResponsiveContainer(
+      padding: ScreenUtil.instance.responsivePadding(all: 24),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // STEP 04.01: 主要圖標
-          Container(
-            padding: const EdgeInsets.all(Constants.SPACING_LARGE),
+          // STEP 02.02: 響應式主要圖標
+          ResponsiveContainer(
+            padding: ScreenUtil.instance.responsivePadding(all: 24),
             decoration: BoxDecoration(
               color: CupertinoColors.systemBlue.withOpacity(0.1),
               shape: BoxShape.circle,
             ),
             child: Icon(
               icon,
-              size: Constants.ICON_SIZE_EXTRA_LARGE * 2,
+              size: ScreenUtil.instance.responsiveIconSize(64),
               color: CupertinoColors.systemBlue,
             ),
           ),
-          const SizedBox(height: Constants.SPACING_LARGE),
+          ResponsiveSpacing(spacing: 24),
           
-          // STEP 04.02: 標題
-          Text(
+          // STEP 02.03: 響應式標題
+          ResponsiveText(
             title,
-            style: const TextStyle(
-              fontSize: Constants.FONT_SIZE_EXTRA_LARGE,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.label,
-            ),
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: CupertinoColors.label,
             textAlign: TextAlign.center,
           ),
-          const SizedBox(height: Constants.SPACING_MEDIUM),
+          ResponsiveSpacing(spacing: 16),
           
-          // STEP 04.03: 描述
+          // STEP 02.04: 響應式描述
           if (description.isNotEmpty)
-            Text(
+            ResponsiveText(
               description,
-              style: const TextStyle(
-                fontSize: Constants.FONT_SIZE_MEDIUM,
-                color: CupertinoColors.secondaryLabel,
-                height: 1.5,
-              ),
+              fontSize: 16,
+              color: CupertinoColors.secondaryLabel,
               textAlign: TextAlign.center,
+              lineHeight: 1.5,
             ),
           
-          const SizedBox(height: Constants.SPACING_EXTRA_LARGE),
+          ResponsiveSpacing(spacing: 32),
           
-          // STEP 04.04: 狀態指示
-          Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: Constants.SPACING_MEDIUM,
-              vertical: Constants.SPACING_SMALL,
+          // STEP 02.05: 響應式狀態指示
+          ResponsiveContainer(
+            padding: ScreenUtil.instance.responsivePadding(
+              horizontal: 16,
+              vertical: 8,
             ),
             decoration: BoxDecoration(
               color: CupertinoColors.systemYellow.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
+              borderRadius: ScreenUtil.instance.responsiveBorderRadius(16),
               border: Border.all(
                 color: CupertinoColors.systemYellow.withOpacity(0.5),
                 width: 1,
               ),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
                   CupertinoIcons.hammer,
                   color: CupertinoColors.systemYellow,
-                  size: Constants.ICON_SIZE_SMALL,
+                  size: ScreenUtil.instance.responsiveIconSize(16),
                 ),
-                SizedBox(width: Constants.SPACING_SMALL),
-                Text(
+                ResponsiveSpacing(spacing: 8, direction: Axis.horizontal),
+                ResponsiveText(
                   '開發中...',
-                  style: TextStyle(
-                    color: CupertinoColors.systemYellow,
-                    fontSize: Constants.FONT_SIZE_SMALL,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: CupertinoColors.systemYellow,
                 ),
               ],
             ),
@@ -135,22 +113,37 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  /// STEP 05: 建立側邊欄背景遮罩
-  Widget _buildSidebarOverlay() {
-    if (!_isSidebarOpen) return const SizedBox.shrink();
+  /// STEP 03: 建立響應式側邊欄背景遮罩
+  Widget _buildSidebarOverlay(BuildContext context, bool isSidebarOpen, int selectedIndex) {
+    // STEP 03.01: 如果側邊欄未開啟則返回空widget
+    if (!isSidebarOpen) return const SizedBox.shrink();
     
+    // STEP 03.02: 取得NavigationProvider來處理點擊事件
+    final navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
+    
+    // STEP 03.03: 返回響應式側邊欄遮罩UI
     return GestureDetector(
-      onTap: _toggleSidebar,
+      onTap: () {
+        // STEP 03.04: 點擊遮罩關閉側邊欄
+        navigationProvider.toggleSidebar();
+      },
       child: Container(
         color: CupertinoColors.black.withOpacity(0.3),
         child: Row(
           children: [
-            // 側邊欄區域
-            CustomSidebar(
-              selectedIndex: _selectedIndex,
-              onItemTapped: _onTabTapped,
+            // STEP 03.05: 響應式側邊欄區域
+            ResponsiveContainer(
+              widthPercentage: ScreenUtil.instance.deviceType == DeviceType.mobile ? 70 : null,
+              child: CustomSidebar(
+                selectedIndex: selectedIndex,
+                onItemTapped: (index) {
+                  // STEP 03.06: 處理側邊欄項目點擊
+                  navigationProvider.setCurrentIndex(index);
+                  navigationProvider.closeSidebar();
+                },
+              ),
             ),
-            // 空白區域（點擊關閉）
+            // STEP 03.07: 空白區域（點擊關閉）
             const Expanded(child: SizedBox()),
           ],
         ),
@@ -158,60 +151,153 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
-      // STEP 06: 改進的導航欄
-      navigationBar: CupertinoNavigationBar(
-        leading: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(
-            CupertinoIcons.bars,
-            size: Constants.ICON_SIZE_MEDIUM,
-          ),
-          onPressed: _toggleSidebar,
+  /// STEP 04: 建立響應式導航列
+  CupertinoNavigationBar _buildResponsiveNavBar(BuildContext context) {
+    // STEP 04.01: 取得NavigationProvider
+    final navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
+    
+    // STEP 04.02: 根據裝置類型決定導航列樣式
+    return CupertinoNavigationBar(
+      leading: CupertinoButton(
+        padding: EdgeInsets.zero,
+        child: Icon(
+          CupertinoIcons.bars,
+          size: ScreenUtil.instance.responsiveIconSize(24),
         ),
-        middle: Text(
-          Constants.APP_NAME,
-          style: const TextStyle(
-            fontSize: Constants.FONT_SIZE_LARGE,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        backgroundColor: CupertinoColors.systemBackground.resolveFrom(context),
-        border: const Border(
-          bottom: BorderSide(
-            color: CupertinoColors.systemGrey4,
-            width: 0.5,
-          ),
+        onPressed: () {
+          // STEP 04.03: 切換側邊欄狀態
+          navigationProvider.toggleSidebar();
+        },
+      ),
+      middle: ResponsiveText(
+        Constants.APP_NAME,
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+      ),
+      backgroundColor: CupertinoColors.systemBackground.resolveFrom(context),
+      border: const Border(
+        bottom: BorderSide(
+          color: CupertinoColors.systemGrey4,
+          width: 0.5,
         ),
       ),
-      
-      // STEP 07: 主要內容
-      child: Stack(
+    );
+  }
+
+  /// STEP 05: 建立手機版佈局
+  Widget _buildMobileLayout(BuildContext context, int selectedIndex, bool isSidebarOpen) {
+    // STEP 05.01: 取得NavigationProvider
+    final navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
+    
+    // STEP 05.02: 構建手機版佈局
+    return Stack(
+      children: [
+        // STEP 05.03: 主頁面內容
+        SafeArea(
+          child: Column(
+            children: [
+              // STEP 05.04: 頁面內容區域
+              Expanded(
+                child: _buildCurrentPage(selectedIndex),
+              ),
+              
+              // STEP 05.05: 自定義底部導航列
+              CustomBottomNavBar(
+                currentIndex: selectedIndex,
+                onTap: (index) {
+                  // STEP 05.06: 處理底部導航點擊
+                  navigationProvider.setCurrentIndex(index);
+                },
+              ),
+            ],
+          ),
+        ),
+        
+        // STEP 05.07: 側邊欄覆蓋層
+        _buildSidebarOverlay(context, isSidebarOpen, selectedIndex),
+      ],
+    );
+  }
+
+  /// STEP 06: 建立平板版佈局
+  Widget _buildTabletLayout(BuildContext context, int selectedIndex, bool isSidebarOpen) {
+    // STEP 06.01: 取得NavigationProvider
+    final navigationProvider = Provider.of<NavigationProvider>(context, listen: false);
+    
+    // STEP 06.02: 構建平板版佈局
+    return SafeArea(
+      child: Row(
         children: [
-          // STEP 07.01: 主頁面內容
-          SafeArea(
+          // STEP 06.03: 左側固定側邊欄（平板模式）
+          if (ScreenUtil.instance.deviceType != DeviceType.mobile)
+            ResponsiveContainer(
+              widthPercentage: null,
+              child: CustomSidebar(
+                selectedIndex: selectedIndex,
+                onItemTapped: (index) {
+                  // STEP 06.04: 處理側邊欄項目點擊
+                  navigationProvider.setCurrentIndex(index);
+                },
+              ),
+            ),
+          
+          // STEP 06.05: 右側主內容區域
+          Expanded(
             child: Column(
               children: [
-                // 頁面內容區域
+                // STEP 06.06: 頁面內容區域
                 Expanded(
-                  child: _buildCurrentPage(),
+                  child: _buildCurrentPage(selectedIndex),
                 ),
                 
-                // 自定義底部導航列
+                // STEP 06.07: 底部導航列（平板也保留）
                 CustomBottomNavBar(
-                  currentIndex: _selectedIndex,
-                  onTap: _onTabTapped,
+                  currentIndex: selectedIndex,
+                  onTap: (index) {
+                    // STEP 06.08: 處理底部導航點擊
+                    navigationProvider.setCurrentIndex(index);
+                  },
                 ),
               ],
             ),
           ),
-          
-          // STEP 07.02: 側邊欄覆蓋層
-          _buildSidebarOverlay(),
         ],
       ),
     );
   }
-} 
+
+  @override
+  Widget build(BuildContext context) {
+    // STEP 07: 初始化響應式設計
+    ScreenUtil.instance.init(context);
+    
+    // STEP 07.01: 使用Consumer監聽NavigationProvider
+    return Consumer<NavigationProvider>(
+      builder: (context, navigationProvider, child) {
+        // STEP 07.02: 從Provider取得當前狀態
+        final selectedIndex = navigationProvider.currentIndex;
+        final isSidebarOpen = navigationProvider.isSidebarOpen;
+        
+        // STEP 07.03: 使用響應式佈局包裝器
+        return OrientationListener(
+          builder: (context, orientation) {
+            return CupertinoPageScaffold(
+              // STEP 07.04: 響應式導航列
+              navigationBar: _buildResponsiveNavBar(context),
+              
+              // STEP 07.05: 根據裝置類型選擇佈局
+              child: ResponsiveLayout(
+                // STEP 07.06: 手機版佈局
+                mobile: _buildMobileLayout(context, selectedIndex, isSidebarOpen),
+                // STEP 07.07: 平板版佈局
+                tablet: _buildTabletLayout(context, selectedIndex, isSidebarOpen),
+                // STEP 07.08: 桌面版佈局（fallback到平板佈局）
+                desktop: _buildTabletLayout(context, selectedIndex, isSidebarOpen),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+}

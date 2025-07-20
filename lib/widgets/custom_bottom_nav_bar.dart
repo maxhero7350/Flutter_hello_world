@@ -1,9 +1,11 @@
 import 'package:flutter/cupertino.dart';
 
 import '../utils/constants.dart';
+import '../utils/screen_util.dart';
+import '../widgets/responsive_layout.dart';
 
-/// 自定義底部導航欄
-/// 提供A、B、C三個頁面的導航功能
+/// 自定義底部導航列
+/// 提供主要的頁面導航功能
 class CustomBottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
@@ -14,39 +16,42 @@ class CustomBottomNavBar extends StatelessWidget {
     required this.onTap,
   });
 
-  /// STEP 01: 建立導航項目
+  /// STEP 01: 建立響應式導航項目
   Widget _buildNavItem({
     required IconData icon,
     required String label,
     required int index,
-    required BuildContext context,
+    required VoidCallback onTap,
   }) {
+    // STEP 01.01: 檢查是否為選中狀態
     final isSelected = currentIndex == index;
     
+    // STEP 01.02: 構建響應式導航項目
     return Expanded(
       child: CupertinoButton(
-        padding: const EdgeInsets.symmetric(vertical: Constants.SPACING_SMALL),
-        onPressed: () => onTap(index),
+        padding: ScreenUtil.instance.responsivePadding(vertical: 8),
+        onPressed: onTap,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // STEP 01.03: 響應式圖標
             Icon(
               icon,
-              size: Constants.ICON_SIZE_MEDIUM,
-              color: isSelected 
+              color: isSelected
                   ? CupertinoColors.activeBlue
-                  : CupertinoColors.systemGrey,
+                  : CupertinoColors.inactiveGray,
+              size: ScreenUtil.instance.responsiveIconSize(24),
             ),
-            const SizedBox(height: Constants.SPACING_SMALL / 2),
-            Text(
+            ResponsiveSpacing(spacing: 4),
+            
+            // STEP 01.04: 響應式標籤
+            ResponsiveText(
               label,
-              style: TextStyle(
-                fontSize: Constants.FONT_SIZE_SMALL,
-                color: isSelected 
-                    ? CupertinoColors.activeBlue
-                    : CupertinoColors.systemGrey,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-              ),
+              fontSize: 12,
+              color: isSelected
+                  ? CupertinoColors.activeBlue
+                  : CupertinoColors.inactiveGray,
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -56,7 +61,11 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    // STEP 02: 初始化響應式設計
+    ScreenUtil.instance.init(context);
+    
+    // STEP 02.01: 構建響應式底部導航列
+    return ResponsiveContainer(
       decoration: const BoxDecoration(
         color: CupertinoColors.systemBackground,
         border: Border(
@@ -66,37 +75,37 @@ class CustomBottomNavBar extends StatelessWidget {
           ),
         ),
       ),
+      padding: EdgeInsets.only(
+        bottom: ScreenUtil.instance.bottomBarHeight,
+      ),
       child: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: Constants.SPACING_SMALL,
-            vertical: Constants.SPACING_SMALL,
-          ),
+        child: ResponsiveContainer(
+          heightPercentage: ScreenUtil.instance.deviceType == DeviceType.mobile ? 8 : 7,
           child: Row(
             children: [
-              // STEP 02: A頁面導航
+              // STEP 02.02: Screen A 導航項目
               _buildNavItem(
                 icon: CupertinoIcons.square_grid_2x2,
                 label: 'A頁面',
                 index: Constants.NAV_INDEX_A,
-                context: context,
+                onTap: () => onTap(Constants.NAV_INDEX_A),
               ),
               
-              // STEP 03: B頁面導航
+              // STEP 02.03: Screen B 導航項目
               _buildNavItem(
-                icon: CupertinoIcons.textformat,
+                icon: CupertinoIcons.doc_text,
                 label: 'B頁面',
                 index: Constants.NAV_INDEX_B,
-                context: context,
+                onTap: () => onTap(Constants.NAV_INDEX_B),
               ),
               
-              // STEP 04: C頁面導航
+              // STEP 02.04: Screen C 導航項目
               _buildNavItem(
-                icon: CupertinoIcons.clock,
+                icon: CupertinoIcons.time,
                 label: 'C頁面',
                 index: Constants.NAV_INDEX_C,
-                context: context,
+                onTap: () => onTap(Constants.NAV_INDEX_C),
               ),
             ],
           ),
@@ -104,4 +113,4 @@ class CustomBottomNavBar extends StatelessWidget {
       ),
     );
   }
-} 
+}
