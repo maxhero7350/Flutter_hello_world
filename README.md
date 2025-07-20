@@ -10,31 +10,34 @@
 ## 📱 應用程式截圖展示
 
 ### **登入頁面**
-![登入頁面](screenshots/Screenshot_1753021313.png)
+<img src="screenshots/Screenshot_1753021355.png" width="40%" alt="登入頁面">
+<br>
 *完整的登入介面，支援快速體驗和完整登入功能*
 
 ### **主頁面 - A頁面**
-![主頁面A](screenshots/Screenshot_1753021327.png)
+<img src="screenshots/Screenshot_1753021329.png" width="40%" alt="主頁面A">
+<br>
 *主頁面A，展示多層導航和響應式設計*
 
 ### **A頁面詳細功能**
-![A頁面功能](screenshots/Screenshot_1753021329.png)
+<img src="screenshots/Screenshot_1753021337.png" width="40%" alt="A頁面跳頁1">
+<img src="screenshots/Screenshot_1753021335.png" width="40%" alt="A頁面跳頁2">
+<br>
 *A頁面的詳細功能展示，包含導航統計和互動元素*
 
 ### **B頁面 - 資料庫功能**
-![B頁面資料庫](screenshots/Screenshot_1753021335.png)
+<img src="screenshots/Screenshot_1753021327.png" width="40%" alt="B頁面資料庫">
+<br>
 *B頁面展示完整的CRUD操作和SQLite資料庫整合*
 
 ### **C頁面 - API整合**
-![C頁面API](screenshots/Screenshot_1753021337.png)
+<img src="screenshots/Screenshot_1753021313.png" width="40%" alt="C頁面API">
+<br>
 *C頁面展示時間API呼叫和網路狀態監控功能*
 
-### **響應式設計展示**
-![響應式設計1](screenshots/Screenshot_1753021342.png)
-*應用程式在不同螢幕尺寸下的響應式佈局*
-
 ### **側邊欄導航**
-![側邊欄導航](screenshots/Screenshot_1753021355.png)
+<img src="screenshots/Screenshot_1753021342.png" width="40%" alt="側邊欄導航">
+<br>
 *側邊欄導航功能，支援多裝置適配*
 
 ---
