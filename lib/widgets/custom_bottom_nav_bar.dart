@@ -1,12 +1,16 @@
-import 'package:flutter/cupertino.dart';
+// ===== FLUTTER CORE =====
+import 'package:flutter/cupertino.dart' as cupertino;
 
-import '../utils/constants.dart';
-import '../utils/screen_util.dart';
-import '../widgets/responsive_layout.dart';
+// ===== CUSTOM UTILS =====
+import '../utils/constants.dart' as constants;
+import '../utils/screen_util.dart' as screen_util;
+
+// ===== CUSTOM WIDGETS =====
+import '../widgets/responsive_layout.dart' as responsive_widgets;
 
 /// 自定義底部導航列
 /// 提供主要的頁面導航功能
-class CustomBottomNavBar extends StatelessWidget {
+class CustomBottomNavBar extends cupertino.StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
@@ -17,41 +21,41 @@ class CustomBottomNavBar extends StatelessWidget {
   });
 
   /// STEP 01: 建立響應式導航項目
-  Widget _buildNavItem({
-    required IconData icon,
+  cupertino.Widget _buildNavItem({
+    required cupertino.IconData icon,
     required String label,
     required int index,
-    required VoidCallback onTap,
+    required cupertino.VoidCallback onTap,
   }) {
     // STEP 01.01: 檢查是否為選中狀態
     final isSelected = currentIndex == index;
-    
+
     // STEP 01.02: 構建響應式導航項目
-    return Expanded(
-      child: CupertinoButton(
-        padding: ScreenUtil.instance.responsivePadding(vertical: 8),
+    return cupertino.Expanded(
+      child: cupertino.CupertinoButton(
+        padding: screen_util.ScreenUtil.instance.responsivePadding(vertical: 8),
         onPressed: onTap,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: cupertino.Column(
+          mainAxisSize: cupertino.MainAxisSize.min,
           children: [
             // STEP 01.03: 響應式圖標
-            Icon(
+            cupertino.Icon(
               icon,
               color: isSelected
-                  ? CupertinoColors.activeBlue
-                  : CupertinoColors.inactiveGray,
-              size: ScreenUtil.instance.responsiveIconSize(24),
+                  ? cupertino.CupertinoColors.activeBlue
+                  : cupertino.CupertinoColors.inactiveGray,
+              size: screen_util.ScreenUtil.instance.responsiveIconSize(24),
             ),
-            ResponsiveSpacing(spacing: 4),
-            
+            responsive_widgets.ResponsiveSpacing(spacing: 4),
+
             // STEP 01.04: 響應式標籤
-            ResponsiveText(
+            responsive_widgets.ResponsiveText(
               label,
               fontSize: 12,
               color: isSelected
-                  ? CupertinoColors.activeBlue
-                  : CupertinoColors.inactiveGray,
-              textAlign: TextAlign.center,
+                  ? cupertino.CupertinoColors.activeBlue
+                  : cupertino.CupertinoColors.inactiveGray,
+              textAlign: cupertino.TextAlign.center,
             ),
           ],
         ),
@@ -60,52 +64,56 @@ class CustomBottomNavBar extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  cupertino.Widget build(cupertino.BuildContext context) {
     // STEP 02: 初始化響應式設計
-    ScreenUtil.instance.init(context);
-    
+    screen_util.ScreenUtil.instance.init(context);
+
     // STEP 02.01: 構建響應式底部導航列
-    return ResponsiveContainer(
-      decoration: const BoxDecoration(
-        color: CupertinoColors.systemBackground,
-        border: Border(
-          top: BorderSide(
-            color: CupertinoColors.systemGrey4,
+    return responsive_widgets.ResponsiveContainer(
+      decoration: const cupertino.BoxDecoration(
+        color: cupertino.CupertinoColors.systemBackground,
+        border: cupertino.Border(
+          top: cupertino.BorderSide(
+            color: cupertino.CupertinoColors.systemGrey4,
             width: 0.5,
           ),
         ),
       ),
-      padding: EdgeInsets.only(
-        bottom: ScreenUtil.instance.bottomBarHeight,
+      padding: cupertino.EdgeInsets.only(
+        bottom: screen_util.ScreenUtil.instance.bottomBarHeight,
       ),
-      child: SafeArea(
+      child: cupertino.SafeArea(
         top: false,
-        child: ResponsiveContainer(
-          heightPercentage: ScreenUtil.instance.deviceType == DeviceType.mobile ? 8 : 7,
-          child: Row(
+        child: responsive_widgets.ResponsiveContainer(
+          heightPercentage:
+              screen_util.ScreenUtil.instance.deviceType ==
+                  screen_util.DeviceType.mobile
+              ? 8
+              : 7,
+          child: cupertino.Row(
             children: [
               // STEP 02.02: Screen A 導航項目
               _buildNavItem(
-                icon: CupertinoIcons.square_grid_2x2,
+                icon: cupertino.CupertinoIcons.square_grid_2x2,
                 label: 'A頁面',
-                index: Constants.NAV_INDEX_A,
-                onTap: () => onTap(Constants.NAV_INDEX_A),
+                index: constants.Constants.NAV_INDEX_A,
+                onTap: () => onTap(constants.Constants.NAV_INDEX_A),
               ),
-              
+
               // STEP 02.03: Screen B 導航項目
               _buildNavItem(
-                icon: CupertinoIcons.doc_text,
+                icon: cupertino.CupertinoIcons.doc_text,
                 label: 'B頁面',
-                index: Constants.NAV_INDEX_B,
-                onTap: () => onTap(Constants.NAV_INDEX_B),
+                index: constants.Constants.NAV_INDEX_B,
+                onTap: () => onTap(constants.Constants.NAV_INDEX_B),
               ),
-              
+
               // STEP 02.04: Screen C 導航項目
               _buildNavItem(
-                icon: CupertinoIcons.time,
+                icon: cupertino.CupertinoIcons.time,
                 label: 'C頁面',
-                index: Constants.NAV_INDEX_C,
-                onTap: () => onTap(Constants.NAV_INDEX_C),
+                index: constants.Constants.NAV_INDEX_C,
+                onTap: () => onTap(constants.Constants.NAV_INDEX_C),
               ),
             ],
           ),

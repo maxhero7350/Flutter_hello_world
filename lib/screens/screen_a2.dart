@@ -1,10 +1,12 @@
-import 'package:flutter/cupertino.dart';
+// ===== FLUTTER CORE =====
+import 'package:flutter/cupertino.dart' as cupertino;
 
-import '../utils/constants.dart';
+// ===== CUSTOM UTILS =====
+import '../utils/constants.dart' as constants;
 
 /// A2頁面 - 第二層跳轉頁面
 /// 展示深層導航和複雜的參數傳遞功能
-class ScreenA2 extends StatefulWidget {
+class ScreenA2 extends cupertino.StatefulWidget {
   final String fromPage;
   final int navigationCount;
   final String message;
@@ -19,15 +21,15 @@ class ScreenA2 extends StatefulWidget {
   });
 
   @override
-  State<ScreenA2> createState() => _ScreenA2State();
+  cupertino.State<ScreenA2> createState() => _ScreenA2State();
 }
 
-class _ScreenA2State extends State<ScreenA2> {
+class _ScreenA2State extends cupertino.State<ScreenA2> {
   late DateTime _arrivedTime;
   String _userFeedback = '';
   int _likeCount = 0;
   bool _hasLiked = false;
-  
+
   // 模擬的頁面訪問歷史
   late List<String> _navigationHistory;
 
@@ -42,14 +44,14 @@ class _ScreenA2State extends State<ScreenA2> {
   /// STEP 02: 建立導航歷史
   List<String> _buildNavigationHistory() {
     final history = <String>[];
-    
+
     if (widget.previousPage != null) {
       history.add(widget.previousPage!);
     }
-    
+
     history.add(widget.fromPage);
     history.add('A2頁面 (當前)');
-    
+
     return history;
   }
 
@@ -75,14 +77,14 @@ class _ScreenA2State extends State<ScreenA2> {
       'liked': _hasLiked,
       'likeCount': _likeCount,
     };
-    
-    Navigator.pop(context, result);
+
+    cupertino.Navigator.pop(context, result);
   }
 
   /// STEP 05: 返回到根頁面（A頁面）
   void _goBackToRoot() {
     // 彈出所有頁面直到A頁面
-    Navigator.popUntil(context, (route) {
+    cupertino.Navigator.popUntil(context, (route) {
       return route.settings.name == '/' || route.isFirst;
     });
   }
@@ -100,32 +102,32 @@ class _ScreenA2State extends State<ScreenA2> {
 
   /// STEP 07: 顯示導航路徑對話框
   void _showNavigationPath() {
-    showCupertinoDialog(
+    cupertino.showCupertinoDialog(
       context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: const Text('導航路徑'),
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+      builder: (cupertino.BuildContext context) {
+        return cupertino.CupertinoAlertDialog(
+          title: const cupertino.Text('導航路徑'),
+          content: cupertino.Column(
+            crossAxisAlignment: cupertino.CrossAxisAlignment.start,
+            mainAxisSize: cupertino.MainAxisSize.min,
             children: [
-              const Text('導航歷史：'),
-              const SizedBox(height: 8),
+              const cupertino.Text('導航歷史：'),
+              const cupertino.SizedBox(height: 8),
               ..._navigationHistory.asMap().entries.map((entry) {
                 final index = entry.key;
                 final page = entry.value;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
+                return cupertino.Padding(
+                  padding: const cupertino.EdgeInsets.only(bottom: 4),
+                  child: cupertino.Row(
                     children: [
-                      Text('${index + 1}. '),
-                      Expanded(
-                        child: Text(
+                      cupertino.Text('${index + 1}. '),
+                      cupertino.Expanded(
+                        child: cupertino.Text(
                           page,
-                          style: TextStyle(
-                            fontWeight: page.contains('當前') 
-                                ? FontWeight.bold 
-                                : FontWeight.normal,
+                          style: cupertino.TextStyle(
+                            fontWeight: page.contains('當前')
+                                ? cupertino.FontWeight.bold
+                                : cupertino.FontWeight.normal,
                           ),
                         ),
                       ),
@@ -136,10 +138,10 @@ class _ScreenA2State extends State<ScreenA2> {
             ],
           ),
           actions: [
-            CupertinoDialogAction(
-              child: const Text('確定'),
+            cupertino.CupertinoDialogAction(
+              child: const cupertino.Text('確定'),
               onPressed: () {
-                Navigator.of(context).pop();
+                cupertino.Navigator.of(context).pop();
               },
             ),
           ],
@@ -149,46 +151,50 @@ class _ScreenA2State extends State<ScreenA2> {
   }
 
   /// STEP 08: 建立頁面資訊卡片
-  Widget _buildPageInfoCard() {
-    return Container(
-      padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-      decoration: BoxDecoration(
-        color: CupertinoColors.systemPurple.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
-        border: Border.all(
-          color: CupertinoColors.systemPurple.withOpacity(0.3),
+  cupertino.Widget _buildPageInfoCard() {
+    return cupertino.Container(
+      padding: const cupertino.EdgeInsets.all(
+        constants.Constants.SPACING_LARGE,
+      ),
+      decoration: cupertino.BoxDecoration(
+        color: cupertino.CupertinoColors.systemPurple.withOpacity(0.1),
+        borderRadius: cupertino.BorderRadius.circular(
+          constants.Constants.BORDER_RADIUS_LARGE,
+        ),
+        border: cupertino.Border.all(
+          color: cupertino.CupertinoColors.systemPurple.withOpacity(0.3),
           width: 1,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: cupertino.Column(
+        crossAxisAlignment: cupertino.CrossAxisAlignment.start,
         children: [
-          const Row(
+          const cupertino.Row(
             children: [
-              Icon(
-                CupertinoIcons.location_fill,
-                color: CupertinoColors.systemPurple,
-                size: Constants.ICON_SIZE_MEDIUM,
+              cupertino.Icon(
+                cupertino.CupertinoIcons.location_fill,
+                color: cupertino.CupertinoColors.systemPurple,
+                size: constants.Constants.ICON_SIZE_MEDIUM,
               ),
-              SizedBox(width: Constants.SPACING_SMALL),
-              Text(
+              cupertino.SizedBox(width: constants.Constants.SPACING_SMALL),
+              cupertino.Text(
                 '當前位置：第二層',
-                style: TextStyle(
-                  fontSize: Constants.FONT_SIZE_LARGE,
-                  fontWeight: FontWeight.bold,
-                  color: CupertinoColors.systemPurple,
+                style: cupertino.TextStyle(
+                  fontSize: constants.Constants.FONT_SIZE_LARGE,
+                  fontWeight: cupertino.FontWeight.bold,
+                  color: cupertino.CupertinoColors.systemPurple,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: Constants.SPACING_MEDIUM),
-          
+          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+
           _buildInfoRow('來源頁面', widget.fromPage),
-          const SizedBox(height: Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
           _buildInfoRow('導航深度', '第 ${widget.navigationCount} 層'),
-          const SizedBox(height: Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
           _buildInfoRow('停留時間', _calculateStayDuration()),
-          const SizedBox(height: Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
           _buildInfoRow('導航層數', '${_navigationHistory.length} 層'),
         ],
       ),
@@ -196,52 +202,60 @@ class _ScreenA2State extends State<ScreenA2> {
   }
 
   /// STEP 09: 建立訊息卡片
-  Widget _buildMessageCard() {
-    return Container(
-      padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-      decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
-        borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
-        border: Border.all(
-          color: CupertinoColors.systemGrey4,
+  cupertino.Widget _buildMessageCard() {
+    return cupertino.Container(
+      padding: const cupertino.EdgeInsets.all(
+        constants.Constants.SPACING_LARGE,
+      ),
+      decoration: cupertino.BoxDecoration(
+        color: cupertino.CupertinoColors.systemBackground,
+        borderRadius: cupertino.BorderRadius.circular(
+          constants.Constants.BORDER_RADIUS_LARGE,
+        ),
+        border: cupertino.Border.all(
+          color: cupertino.CupertinoColors.systemGrey4,
           width: 1,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: cupertino.Column(
+        crossAxisAlignment: cupertino.CrossAxisAlignment.start,
         children: [
-          const Row(
+          const cupertino.Row(
             children: [
-              Icon(
-                CupertinoIcons.mail,
-                color: CupertinoColors.systemBlue,
-                size: Constants.ICON_SIZE_MEDIUM,
+              cupertino.Icon(
+                cupertino.CupertinoIcons.mail,
+                color: cupertino.CupertinoColors.systemBlue,
+                size: constants.Constants.ICON_SIZE_MEDIUM,
               ),
-              SizedBox(width: Constants.SPACING_SMALL),
-              Text(
+              cupertino.SizedBox(width: constants.Constants.SPACING_SMALL),
+              cupertino.Text(
                 '傳遞的訊息',
-                style: TextStyle(
-                  fontSize: Constants.FONT_SIZE_LARGE,
-                  fontWeight: FontWeight.bold,
-                  color: CupertinoColors.label,
+                style: cupertino.TextStyle(
+                  fontSize: constants.Constants.FONT_SIZE_LARGE,
+                  fontWeight: cupertino.FontWeight.bold,
+                  color: cupertino.CupertinoColors.label,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: Constants.SPACING_MEDIUM),
-          
-          Container(
-            padding: const EdgeInsets.all(Constants.SPACING_MEDIUM),
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemGrey6,
-              borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
+          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+
+          cupertino.Container(
+            padding: const cupertino.EdgeInsets.all(
+              constants.Constants.SPACING_MEDIUM,
             ),
-            child: Text(
+            decoration: cupertino.BoxDecoration(
+              color: cupertino.CupertinoColors.systemGrey6,
+              borderRadius: cupertino.BorderRadius.circular(
+                constants.Constants.BORDER_RADIUS_MEDIUM,
+              ),
+            ),
+            child: cupertino.Text(
               widget.message,
-              style: const TextStyle(
-                fontSize: Constants.FONT_SIZE_MEDIUM,
-                color: CupertinoColors.label,
-                fontStyle: FontStyle.italic,
+              style: const cupertino.TextStyle(
+                fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                color: cupertino.CupertinoColors.label,
+                fontStyle: cupertino.FontStyle.italic,
                 height: 1.4,
               ),
             ),
@@ -252,83 +266,105 @@ class _ScreenA2State extends State<ScreenA2> {
   }
 
   /// STEP 10: 建立互動區域
-  Widget _buildInteractionArea() {
-    return Container(
-      padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-      decoration: BoxDecoration(
-        color: CupertinoColors.systemBackground,
-        borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
-        border: Border.all(
-          color: CupertinoColors.systemGrey4,
+  cupertino.Widget _buildInteractionArea() {
+    return cupertino.Container(
+      padding: const cupertino.EdgeInsets.all(
+        constants.Constants.SPACING_LARGE,
+      ),
+      decoration: cupertino.BoxDecoration(
+        color: cupertino.CupertinoColors.systemBackground,
+        borderRadius: cupertino.BorderRadius.circular(
+          constants.Constants.BORDER_RADIUS_LARGE,
+        ),
+        border: cupertino.Border.all(
+          color: cupertino.CupertinoColors.systemGrey4,
           width: 1,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: cupertino.Column(
+        crossAxisAlignment: cupertino.CrossAxisAlignment.start,
         children: [
-          const Text(
+          const cupertino.Text(
             '互動功能',
-            style: TextStyle(
-              fontSize: Constants.FONT_SIZE_LARGE,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.label,
+            style: cupertino.TextStyle(
+              fontSize: constants.Constants.FONT_SIZE_LARGE,
+              fontWeight: cupertino.FontWeight.bold,
+              color: cupertino.CupertinoColors.label,
             ),
           ),
-          const SizedBox(height: Constants.SPACING_MEDIUM),
-          
+          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+
           // 點讚功能
-          Row(
+          cupertino.Row(
             children: [
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Constants.SPACING_MEDIUM,
-                  vertical: Constants.SPACING_SMALL,
+              cupertino.CupertinoButton(
+                padding: const cupertino.EdgeInsets.symmetric(
+                  horizontal: constants.Constants.SPACING_MEDIUM,
+                  vertical: constants.Constants.SPACING_SMALL,
                 ),
-                color: _hasLiked ? CupertinoColors.systemRed : CupertinoColors.systemGrey5,
-                borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
+                color: _hasLiked
+                    ? cupertino.CupertinoColors.systemRed
+                    : cupertino.CupertinoColors.systemGrey5,
+                borderRadius: cupertino.BorderRadius.circular(
+                  constants.Constants.BORDER_RADIUS_MEDIUM,
+                ),
                 onPressed: _handleLike,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: cupertino.Row(
+                  mainAxisSize: cupertino.MainAxisSize.min,
                   children: [
-                    Icon(
-                      _hasLiked ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
-                      color: _hasLiked ? CupertinoColors.white : CupertinoColors.label,
-                      size: Constants.ICON_SIZE_MEDIUM,
+                    cupertino.Icon(
+                      _hasLiked
+                          ? cupertino.CupertinoIcons.heart_fill
+                          : cupertino.CupertinoIcons.heart,
+                      color: _hasLiked
+                          ? cupertino.CupertinoColors.white
+                          : cupertino.CupertinoColors.label,
+                      size: constants.Constants.ICON_SIZE_MEDIUM,
                     ),
-                    const SizedBox(width: Constants.SPACING_SMALL),
-                    Text(
+                    const cupertino.SizedBox(
+                      width: constants.Constants.SPACING_SMALL,
+                    ),
+                    cupertino.Text(
                       '喜歡 ($_likeCount)',
-                      style: TextStyle(
-                        color: _hasLiked ? CupertinoColors.white : CupertinoColors.label,
-                        fontSize: Constants.FONT_SIZE_MEDIUM,
+                      style: cupertino.TextStyle(
+                        color: _hasLiked
+                            ? cupertino.CupertinoColors.white
+                            : cupertino.CupertinoColors.label,
+                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: Constants.SPACING_MEDIUM),
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Constants.SPACING_MEDIUM,
-                  vertical: Constants.SPACING_SMALL,
+              const cupertino.SizedBox(
+                width: constants.Constants.SPACING_MEDIUM,
+              ),
+              cupertino.CupertinoButton(
+                padding: const cupertino.EdgeInsets.symmetric(
+                  horizontal: constants.Constants.SPACING_MEDIUM,
+                  vertical: constants.Constants.SPACING_SMALL,
                 ),
-                color: CupertinoColors.systemBlue,
-                borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
+                color: cupertino.CupertinoColors.systemBlue,
+                borderRadius: cupertino.BorderRadius.circular(
+                  constants.Constants.BORDER_RADIUS_MEDIUM,
+                ),
                 onPressed: _showNavigationPath,
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: const cupertino.Row(
+                  mainAxisSize: cupertino.MainAxisSize.min,
                   children: [
-                    Icon(
-                      CupertinoIcons.map,
-                      color: CupertinoColors.white,
-                      size: Constants.ICON_SIZE_MEDIUM,
+                    cupertino.Icon(
+                      cupertino.CupertinoIcons.map,
+                      color: cupertino.CupertinoColors.white,
+                      size: constants.Constants.ICON_SIZE_MEDIUM,
                     ),
-                    SizedBox(width: Constants.SPACING_SMALL),
-                    Text(
+                    cupertino.SizedBox(
+                      width: constants.Constants.SPACING_SMALL,
+                    ),
+                    cupertino.Text(
                       '導航路徑',
-                      style: TextStyle(
-                        color: CupertinoColors.white,
-                        fontSize: Constants.FONT_SIZE_MEDIUM,
+                      style: cupertino.TextStyle(
+                        color: cupertino.CupertinoColors.white,
+                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
                       ),
                     ),
                   ],
@@ -336,39 +372,43 @@ class _ScreenA2State extends State<ScreenA2> {
               ),
             ],
           ),
-          
-          const SizedBox(height: Constants.SPACING_LARGE),
-          
+
+          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+
           // 回饋輸入
-          const Text(
+          const cupertino.Text(
             '回饋意見',
-            style: TextStyle(
-              fontSize: Constants.FONT_SIZE_MEDIUM,
-              fontWeight: FontWeight.w600,
-              color: CupertinoColors.label,
+            style: cupertino.TextStyle(
+              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+              fontWeight: cupertino.FontWeight.w600,
+              color: cupertino.CupertinoColors.label,
             ),
           ),
-          const SizedBox(height: Constants.SPACING_SMALL),
-          
-          CupertinoTextField(
+          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+
+          cupertino.CupertinoTextField(
             placeholder: '請分享您對導航體驗的想法...',
             onChanged: (value) {
               setState(() {
                 _userFeedback = value;
               });
             },
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemBackground,
-              border: Border.all(
-                color: CupertinoColors.systemGrey4,
+            decoration: cupertino.BoxDecoration(
+              color: cupertino.CupertinoColors.systemBackground,
+              border: cupertino.Border.all(
+                color: cupertino.CupertinoColors.systemGrey4,
                 width: 1,
               ),
-              borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
+              borderRadius: cupertino.BorderRadius.circular(
+                constants.Constants.BORDER_RADIUS_MEDIUM,
+              ),
             ),
-            padding: const EdgeInsets.all(Constants.SPACING_MEDIUM),
+            padding: const cupertino.EdgeInsets.all(
+              constants.Constants.SPACING_MEDIUM,
+            ),
             maxLines: 3,
-            style: const TextStyle(
-              fontSize: Constants.FONT_SIZE_MEDIUM,
+            style: const cupertino.TextStyle(
+              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
             ),
           ),
         ],
@@ -377,23 +417,23 @@ class _ScreenA2State extends State<ScreenA2> {
   }
 
   /// STEP 11: 建立資訊行
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  cupertino.Widget _buildInfoRow(String label, String value) {
+    return cupertino.Row(
+      mainAxisAlignment: cupertino.MainAxisAlignment.spaceBetween,
       children: [
-        Text(
+        cupertino.Text(
           label,
-          style: const TextStyle(
-            fontSize: Constants.FONT_SIZE_MEDIUM,
-            color: CupertinoColors.secondaryLabel,
+          style: const cupertino.TextStyle(
+            fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+            color: cupertino.CupertinoColors.secondaryLabel,
           ),
         ),
-        Text(
+        cupertino.Text(
           value,
-          style: const TextStyle(
-            fontSize: Constants.FONT_SIZE_MEDIUM,
-            fontWeight: FontWeight.w600,
-            color: CupertinoColors.label,
+          style: const cupertino.TextStyle(
+            fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+            fontWeight: cupertino.FontWeight.w600,
+            color: cupertino.CupertinoColors.label,
           ),
         ),
       ],
@@ -401,32 +441,38 @@ class _ScreenA2State extends State<ScreenA2> {
   }
 
   /// STEP 12: 建立操作按鈕
-  Widget _buildActionButton({
+  cupertino.Widget _buildActionButton({
     required String title,
-    required IconData icon,
-    required VoidCallback onPressed,
-    required Color color,
+    required cupertino.IconData icon,
+    required cupertino.VoidCallback onPressed,
+    required cupertino.Color color,
     bool isSecondary = false,
   }) {
-    return CupertinoButton(
-      color: isSecondary ? CupertinoColors.systemGrey5 : color,
-      borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
+    return cupertino.CupertinoButton(
+      color: isSecondary ? cupertino.CupertinoColors.systemGrey5 : color,
+      borderRadius: cupertino.BorderRadius.circular(
+        constants.Constants.BORDER_RADIUS_MEDIUM,
+      ),
       onPressed: onPressed,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: cupertino.Row(
+        mainAxisAlignment: cupertino.MainAxisAlignment.center,
         children: [
-          Icon(
+          cupertino.Icon(
             icon,
-            color: isSecondary ? CupertinoColors.label : CupertinoColors.white,
-            size: Constants.ICON_SIZE_MEDIUM,
+            color: isSecondary
+                ? cupertino.CupertinoColors.label
+                : cupertino.CupertinoColors.white,
+            size: constants.Constants.ICON_SIZE_MEDIUM,
           ),
-          const SizedBox(width: Constants.SPACING_SMALL),
-          Text(
+          const cupertino.SizedBox(width: constants.Constants.SPACING_SMALL),
+          cupertino.Text(
             title,
-            style: TextStyle(
-              color: isSecondary ? CupertinoColors.label : CupertinoColors.white,
-              fontSize: Constants.FONT_SIZE_MEDIUM,
-              fontWeight: FontWeight.w600,
+            style: cupertino.TextStyle(
+              color: isSecondary
+                  ? cupertino.CupertinoColors.label
+                  : cupertino.CupertinoColors.white,
+              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+              fontWeight: cupertino.FontWeight.w600,
             ),
           ),
         ],
@@ -435,75 +481,83 @@ class _ScreenA2State extends State<ScreenA2> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return CupertinoPageScaffold(
+  cupertino.Widget build(cupertino.BuildContext context) {
+    return cupertino.CupertinoPageScaffold(
       // STEP 13: 導航欄
-      navigationBar: CupertinoNavigationBar(
-        middle: const Text(
+      navigationBar: cupertino.CupertinoNavigationBar(
+        middle: const cupertino.Text(
           'A2頁面 - 第二層',
-          style: TextStyle(
-            fontSize: Constants.FONT_SIZE_LARGE,
-            fontWeight: FontWeight.w600,
+          style: cupertino.TextStyle(
+            fontSize: constants.Constants.FONT_SIZE_LARGE,
+            fontWeight: cupertino.FontWeight.w600,
           ),
         ),
-        trailing: CupertinoButton(
-          padding: EdgeInsets.zero,
-          child: const Icon(CupertinoIcons.map),
+        trailing: cupertino.CupertinoButton(
+          padding: cupertino.EdgeInsets.zero,
           onPressed: _showNavigationPath,
+          child: const cupertino.Icon(cupertino.CupertinoIcons.map),
         ),
-        backgroundColor: CupertinoColors.systemBackground,
+        backgroundColor: cupertino.CupertinoColors.systemBackground,
       ),
-      
+
       // STEP 14: 主要內容
-      child: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(Constants.SPACING_LARGE),
+      child: cupertino.SafeArea(
+        child: cupertino.ListView(
+          padding: const cupertino.EdgeInsets.all(
+            constants.Constants.SPACING_LARGE,
+          ),
           children: [
             // STEP 14.01: 頁面標題
-            const Text(
+            const cupertino.Text(
               '第二層跳轉頁面',
-              style: TextStyle(
-                fontSize: Constants.FONT_SIZE_EXTRA_LARGE,
-                fontWeight: FontWeight.bold,
-                color: CupertinoColors.label,
+              style: cupertino.TextStyle(
+                fontSize: constants.Constants.FONT_SIZE_EXTRA_LARGE,
+                fontWeight: cupertino.FontWeight.bold,
+                color: cupertino.CupertinoColors.label,
               ),
             ),
-            const SizedBox(height: Constants.SPACING_SMALL),
-            Text(
+            const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+            cupertino.Text(
               '從「${widget.fromPage}」導航而來',
-              style: const TextStyle(
-                fontSize: Constants.FONT_SIZE_MEDIUM,
-                color: CupertinoColors.secondaryLabel,
+              style: const cupertino.TextStyle(
+                fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                color: cupertino.CupertinoColors.secondaryLabel,
               ),
             ),
-            const SizedBox(height: Constants.SPACING_EXTRA_LARGE),
-            
+            const cupertino.SizedBox(
+              height: constants.Constants.SPACING_EXTRA_LARGE,
+            ),
+
             // STEP 14.02: 頁面資訊
             _buildPageInfoCard(),
-            const SizedBox(height: Constants.SPACING_LARGE),
-            
+            const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+
             // STEP 14.03: 傳遞的訊息
             _buildMessageCard(),
-            const SizedBox(height: Constants.SPACING_LARGE),
-            
+            const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+
             // STEP 14.04: 互動區域
             _buildInteractionArea(),
-            const SizedBox(height: Constants.SPACING_EXTRA_LARGE),
-            
+            const cupertino.SizedBox(
+              height: constants.Constants.SPACING_EXTRA_LARGE,
+            ),
+
             // STEP 14.05: 操作按鈕
             _buildActionButton(
               title: '返回上一頁',
-              icon: CupertinoIcons.arrow_left_circle,
+              icon: cupertino.CupertinoIcons.arrow_left_circle,
               onPressed: _goBack,
-              color: CupertinoColors.activeBlue,
+              color: cupertino.CupertinoColors.activeBlue,
             ),
-            const SizedBox(height: Constants.SPACING_MEDIUM),
-            
+            const cupertino.SizedBox(
+              height: constants.Constants.SPACING_MEDIUM,
+            ),
+
             _buildActionButton(
               title: '返回A頁面',
-              icon: CupertinoIcons.house,
+              icon: cupertino.CupertinoIcons.house,
               onPressed: _goBackToRoot,
-              color: CupertinoColors.systemGrey,
+              color: cupertino.CupertinoColors.systemGrey,
               isSecondary: true,
             ),
           ],
@@ -511,4 +565,4 @@ class _ScreenA2State extends State<ScreenA2> {
       ),
     );
   }
-} 
+}

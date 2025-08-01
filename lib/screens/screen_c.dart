@@ -1,33 +1,45 @@
+// ===== DART CORE =====
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../utils/constants.dart';
-import '../models/time_data_model.dart';
-import '../services/api_service.dart';
-import '../services/offline_storage_service.dart';
+// ===== FLUTTER CORE =====
+import 'package:flutter/cupertino.dart' as cupertino;
+
+// ===== THIRD PARTY =====
+import 'package:connectivity_plus/connectivity_plus.dart' as connectivity;
+
+// ===== CUSTOM UTILS =====
+import '../utils/constants.dart' as constants;
+
+// ===== CUSTOM MODELS =====
+import '../models/time_data_model.dart' as time_data_model;
+
+// ===== CUSTOM SERVICES =====
+import '../services/api_service.dart' as api_service;
+import '../services/offline_storage_service.dart' as offline_storage_service;
 
 /// C頁面 - API呼叫
 /// 提供時間API呼叫功能和網路狀態監控
-class ScreenC extends StatefulWidget {
+class ScreenC extends cupertino.StatefulWidget {
   const ScreenC({super.key});
 
   @override
-  State<ScreenC> createState() => _ScreenCState();
+  cupertino.State<ScreenC> createState() => _ScreenCState();
 }
 
-class _ScreenCState extends State<ScreenC> {
-  final ApiService _apiService = ApiService();
-  final OfflineStorageService _offlineStorage = OfflineStorageService();
-  
-  TimeDataModel? _currentTimeData;
+class _ScreenCState extends cupertino.State<ScreenC> {
+  final api_service.ApiService _apiService = api_service.ApiService();
+  final offline_storage_service.OfflineStorageService _offlineStorage =
+      offline_storage_service.OfflineStorageService();
+
+  time_data_model.TimeDataModel? _currentTimeData;
   bool _isLoading = false;
   String? _errorMessage;
   String _networkType = '檢查中...';
   bool _isConnected = false;
   bool _isOfflineMode = false;
-  
-  StreamSubscription<ConnectivityResult>? _connectivitySubscription;
+
+  StreamSubscription<connectivity.ConnectivityResult>?
+  _connectivitySubscription;
   Timer? _autoRefreshTimer;
   int _apiCallCount = 0;
   DateTime? _lastUpdateTime;
@@ -39,7 +51,7 @@ class _ScreenCState extends State<ScreenC> {
     super.initState();
     // STEP 01: 初始化離線功能
     _initializeOfflineFeatures();
-    
+
     // STEP 01.01: 監聽網路狀態變化
     _connectivitySubscription = _apiService.connectivityStream.listen(
       _onConnectivityChanged,
@@ -67,7 +79,7 @@ class _ScreenCState extends State<ScreenC> {
   Future<void> _checkNetworkStatus() async {
     final connected = await _apiService.isConnected();
     final networkType = await _apiService.getNetworkType();
-    
+
     if (mounted) {
       setState(() {
         _isConnected = connected;
@@ -77,11 +89,12 @@ class _ScreenCState extends State<ScreenC> {
   }
 
   /// STEP 04: 處理網路狀態變化
-  void _onConnectivityChanged(ConnectivityResult result) {
+  void _onConnectivityChanged(connectivity.ConnectivityResult result) {
     _checkNetworkStatus();
-    
+
     // 如果網路恢復連線且開啟自動同步，進行資料同步
-    if (result != ConnectivityResult.none && _offlineSettings['autoSync'] == true) {
+    if (result != connectivity.ConnectivityResult.none &&
+        _offlineSettings['autoSync'] == true) {
       _syncOfflineData();
     }
   }
@@ -129,8 +142,10 @@ class _ScreenCState extends State<ScreenC> {
     });
 
     try {
-      final timeData = await _apiService.fetchCurrentTime(forceOnline: forceOnline);
-      
+      final timeData = await _apiService.fetchCurrentTime(
+        forceOnline: forceOnline,
+      );
+
       if (mounted) {
         setState(() {
           _currentTimeData = timeData;
@@ -139,14 +154,14 @@ class _ScreenCState extends State<ScreenC> {
           _lastUpdateTime = DateTime.now();
           _isOfflineMode = !_isConnected && !forceOnline;
         });
-        
+
         // 更新快取統計
         await _loadCacheStats();
-        
+
         if (_isOfflineMode) {
-          _showSuccessMessage(Constants.SUCCESS_OFFLINE_DATA_LOADED);
+          _showSuccessMessage(constants.Constants.SUCCESS_OFFLINE_DATA_LOADED);
         } else {
-          _showSuccessMessage(Constants.SUCCESS_TIME_FETCHED);
+          _showSuccessMessage(constants.Constants.SUCCESS_TIME_FETCHED);
         }
       }
     } catch (e) {
@@ -155,9 +170,10 @@ class _ScreenCState extends State<ScreenC> {
           _errorMessage = e.toString();
           _isLoading = false;
         });
-        
+
         // 如果是離線錯誤且有快取資料，不顯示錯誤對話框
-        if (e.toString().contains(Constants.ERROR_NETWORK) && _currentTimeData != null) {
+        if (e.toString().contains(constants.Constants.ERROR_NETWORK) &&
+            _currentTimeData != null) {
           print('離線模式：使用快取資料');
         } else {
           _showErrorDialog('API呼叫失敗', e.toString());
@@ -171,9 +187,9 @@ class _ScreenCState extends State<ScreenC> {
     try {
       await _apiService.syncOfflineData();
       await _loadCacheStats();
-      
+
       if (mounted) {
-        _showSuccessMessage(Constants.SUCCESS_CACHE_SYNC);
+        _showSuccessMessage(constants.Constants.SUCCESS_CACHE_SYNC);
       }
     } catch (e) {
       print('同步離線資料錯誤: $e');
@@ -188,12 +204,12 @@ class _ScreenCState extends State<ScreenC> {
 
     try {
       final testResult = await _apiService.testApiConnection();
-      
+
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-        
+
         _showTestResultDialog(testResult);
       }
     } catch (e) {
@@ -201,7 +217,7 @@ class _ScreenCState extends State<ScreenC> {
         setState(() {
           _isLoading = false;
         });
-        
+
         _showErrorDialog('連線測試失敗', e.toString());
       }
     }
@@ -216,31 +232,30 @@ class _ScreenCState extends State<ScreenC> {
       setState(() {});
     } else {
       // 啟用自動刷新（每30秒）
-      _autoRefreshTimer = Timer.periodic(
-        const Duration(seconds: 30),
-        (timer) {
-          if (_isConnected && !_isLoading) {
-            _fetchCurrentTime();
-          }
-        },
-      );
+      _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
+        if (_isConnected && !_isLoading) {
+          _fetchCurrentTime();
+        }
+      });
       setState(() {});
     }
   }
 
   /// STEP 08: 顯示成功訊息
   void _showSuccessMessage([String? message]) {
-    showCupertinoDialog(
+    cupertino.showCupertinoDialog(
       context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: const Text('成功'),
-          content: Text(message ?? Constants.SUCCESS_TIME_FETCHED),
+      builder: (cupertino.BuildContext context) {
+        return cupertino.CupertinoAlertDialog(
+          title: const cupertino.Text('成功'),
+          content: cupertino.Text(
+            message ?? constants.Constants.SUCCESS_TIME_FETCHED,
+          ),
           actions: [
-            CupertinoDialogAction(
-              child: const Text('確定'),
+            cupertino.CupertinoDialogAction(
+              child: const cupertino.Text('確定'),
               onPressed: () {
-                Navigator.of(context).pop();
+                cupertino.Navigator.of(context).pop();
               },
             ),
           ],
@@ -251,17 +266,17 @@ class _ScreenCState extends State<ScreenC> {
 
   /// STEP 09: 顯示錯誤對話框
   void _showErrorDialog(String title, String message) {
-    showCupertinoDialog(
+    cupertino.showCupertinoDialog(
       context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Text(title),
-          content: Text(message),
+      builder: (cupertino.BuildContext context) {
+        return cupertino.CupertinoAlertDialog(
+          title: cupertino.Text(title),
+          content: cupertino.Text(message),
           actions: [
-            CupertinoDialogAction(
-              child: const Text('確定'),
+            cupertino.CupertinoDialogAction(
+              child: const cupertino.Text('確定'),
               onPressed: () {
-                Navigator.of(context).pop();
+                cupertino.Navigator.of(context).pop();
               },
             ),
           ],
@@ -272,30 +287,30 @@ class _ScreenCState extends State<ScreenC> {
 
   /// STEP 10: 顯示測試結果對話框
   void _showTestResultDialog(Map<String, dynamic> result) {
-    showCupertinoDialog(
+    cupertino.showCupertinoDialog(
       context: context,
-      builder: (BuildContext context) {
-        return CupertinoAlertDialog(
-          title: Text(result['success'] ? '連線測試成功' : '連線測試失敗'),
-          content: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
+      builder: (cupertino.BuildContext context) {
+        return cupertino.CupertinoAlertDialog(
+          title: cupertino.Text(result['success'] ? '連線測試成功' : '連線測試失敗'),
+          content: cupertino.Column(
+            crossAxisAlignment: cupertino.CrossAxisAlignment.start,
+            mainAxisSize: cupertino.MainAxisSize.min,
             children: [
               if (result['statusCode'] != null)
-                Text('狀態碼: ${result['statusCode']}'),
-              Text('回應時間: ${result['responseTime']}ms'),
-              Text('網路狀態: ${result['networkStatus']}'),
+                cupertino.Text('狀態碼: ${result['statusCode']}'),
+              cupertino.Text('回應時間: ${result['responseTime']}ms'),
+              cupertino.Text('網路狀態: ${result['networkStatus']}'),
               if (result['responseSize'] != null)
-                Text('回應大小: ${result['responseSize']} bytes'),
+                cupertino.Text('回應大小: ${result['responseSize']} bytes'),
               if (result['error'] != null)
-                Text('錯誤: ${result['error']}'),
+                cupertino.Text('錯誤: ${result['error']}'),
             ],
           ),
           actions: [
-            CupertinoDialogAction(
-              child: const Text('確定'),
+            cupertino.CupertinoDialogAction(
+              child: const cupertino.Text('確定'),
               onPressed: () {
-                Navigator.of(context).pop();
+                cupertino.Navigator.of(context).pop();
               },
             ),
           ],
@@ -305,153 +320,191 @@ class _ScreenCState extends State<ScreenC> {
   }
 
   /// STEP 11: 建立網路狀態卡片
-  Widget _buildNetworkStatusCard() {
+  cupertino.Widget _buildNetworkStatusCard() {
     final hasCache = _cacheStats['hasTimeDataCache'] ?? false;
     final cacheAge = _cacheStats['cacheAge'];
-    
-    return Container(
-      padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-      decoration: BoxDecoration(
-        color: _isConnected 
-            ? CupertinoColors.systemGreen.withOpacity(0.1)
-            : (hasCache 
-                ? CupertinoColors.systemOrange.withOpacity(0.1)
-                : CupertinoColors.systemRed.withOpacity(0.1)),
-        borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
-        border: Border.all(
-          color: _isConnected 
-              ? CupertinoColors.systemGreen.withOpacity(0.3)
-              : (hasCache 
-                  ? CupertinoColors.systemOrange.withOpacity(0.3)
-                  : CupertinoColors.systemRed.withOpacity(0.3)),
+
+    return cupertino.Container(
+      padding: const cupertino.EdgeInsets.all(
+        constants.Constants.SPACING_LARGE,
+      ),
+      decoration: cupertino.BoxDecoration(
+        color: _isConnected
+            ? cupertino.CupertinoColors.systemGreen.withOpacity(0.1)
+            : (hasCache
+                  ? cupertino.CupertinoColors.systemOrange.withOpacity(0.1)
+                  : cupertino.CupertinoColors.systemRed.withOpacity(0.1)),
+        borderRadius: cupertino.BorderRadius.circular(
+          constants.Constants.BORDER_RADIUS_LARGE,
+        ),
+        border: cupertino.Border.all(
+          color: _isConnected
+              ? cupertino.CupertinoColors.systemGreen.withOpacity(0.3)
+              : (hasCache
+                    ? cupertino.CupertinoColors.systemOrange.withOpacity(0.3)
+                    : cupertino.CupertinoColors.systemRed.withOpacity(0.3)),
           width: 1,
         ),
       ),
-      child: Column(
+      child: cupertino.Column(
         children: [
-          Row(
+          cupertino.Row(
             children: [
-              Icon(
-                _isConnected 
-                    ? CupertinoIcons.wifi 
-                    : (hasCache ? CupertinoIcons.cloud_download : CupertinoIcons.wifi_slash),
-                color: _isConnected 
-                    ? CupertinoColors.systemGreen 
-                    : (hasCache ? CupertinoColors.systemOrange : CupertinoColors.systemRed),
-                size: Constants.ICON_SIZE_MEDIUM,
+              cupertino.Icon(
+                _isConnected
+                    ? cupertino.CupertinoIcons.wifi
+                    : (hasCache
+                          ? cupertino.CupertinoIcons.cloud_download
+                          : cupertino.CupertinoIcons.wifi_slash),
+                color: _isConnected
+                    ? cupertino.CupertinoColors.systemGreen
+                    : (hasCache
+                          ? cupertino.CupertinoColors.systemOrange
+                          : cupertino.CupertinoColors.systemRed),
+                size: constants.Constants.ICON_SIZE_MEDIUM,
               ),
-              const SizedBox(width: Constants.SPACING_MEDIUM),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              const cupertino.SizedBox(
+                width: constants.Constants.SPACING_MEDIUM,
+              ),
+              cupertino.Expanded(
+                child: cupertino.Column(
+                  crossAxisAlignment: cupertino.CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    cupertino.Row(
                       children: [
-                        Text(
+                        cupertino.Text(
                           _isConnected ? '網路狀態' : '離線模式',
-                          style: TextStyle(
-                            fontSize: Constants.FONT_SIZE_LARGE,
-                            fontWeight: FontWeight.bold,
-                            color: _isConnected 
-                                ? CupertinoColors.systemGreen 
-                                : (hasCache ? CupertinoColors.systemOrange : CupertinoColors.systemRed),
+                          style: cupertino.TextStyle(
+                            fontSize: constants.Constants.FONT_SIZE_LARGE,
+                            fontWeight: cupertino.FontWeight.bold,
+                            color: _isConnected
+                                ? cupertino.CupertinoColors.systemGreen
+                                : (hasCache
+                                      ? cupertino.CupertinoColors.systemOrange
+                                      : cupertino.CupertinoColors.systemRed),
                           ),
                         ),
                         if (!_isConnected && hasCache) ...[
-                          const SizedBox(width: Constants.SPACING_SMALL),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: Constants.SPACING_SMALL / 2,
+                          const cupertino.SizedBox(
+                            width: constants.Constants.SPACING_SMALL,
+                          ),
+                          cupertino.Container(
+                            padding: const cupertino.EdgeInsets.symmetric(
+                              horizontal: constants.Constants.SPACING_SMALL / 2,
                               vertical: 2,
                             ),
-                            decoration: BoxDecoration(
-                              color: CupertinoColors.systemOrange,
-                              borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_SMALL),
+                            decoration: cupertino.BoxDecoration(
+                              color: cupertino.CupertinoColors.systemOrange,
+                              borderRadius: cupertino.BorderRadius.circular(
+                                constants.Constants.BORDER_RADIUS_SMALL,
+                              ),
                             ),
-                            child: const Text(
+                            child: const cupertino.Text(
                               '快取可用',
-                              style: TextStyle(
-                                color: CupertinoColors.white,
+                              style: cupertino.TextStyle(
+                                color: cupertino.CupertinoColors.white,
                                 fontSize: 10,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: cupertino.FontWeight.w600,
                               ),
                             ),
                           ),
                         ],
                       ],
                     ),
-                    const SizedBox(height: Constants.SPACING_SMALL),
-                    Text(
+                    const cupertino.SizedBox(
+                      height: constants.Constants.SPACING_SMALL,
+                    ),
+                    cupertino.Text(
                       _isConnected ? _networkType : '使用本地快取資料',
-                      style: const TextStyle(
-                        fontSize: Constants.FONT_SIZE_MEDIUM,
-                        color: CupertinoColors.label,
+                      style: const cupertino.TextStyle(
+                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                        color: cupertino.CupertinoColors.label,
                       ),
                     ),
                     if (!_isConnected && hasCache && cacheAge != null) ...[
-                      const SizedBox(height: Constants.SPACING_SMALL / 2),
-                      Text(
-                        '快取時間：${cacheAge}分鐘前',
-                        style: const TextStyle(
-                          fontSize: Constants.FONT_SIZE_SMALL,
-                          color: CupertinoColors.secondaryLabel,
+                      const cupertino.SizedBox(
+                        height: constants.Constants.SPACING_SMALL / 2,
+                      ),
+                      cupertino.Text(
+                        '快取時間：$cacheAge分鐘前',
+                        style: const cupertino.TextStyle(
+                          fontSize: constants.Constants.FONT_SIZE_SMALL,
+                          color: cupertino.CupertinoColors.secondaryLabel,
                         ),
                       ),
                     ],
                   ],
                 ),
               ),
-              CupertinoButton(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: Constants.SPACING_MEDIUM,
-                  vertical: Constants.SPACING_SMALL,
+              cupertino.CupertinoButton(
+                padding: const cupertino.EdgeInsets.symmetric(
+                  horizontal: constants.Constants.SPACING_MEDIUM,
+                  vertical: constants.Constants.SPACING_SMALL,
                 ),
-                color: _isConnected ? CupertinoColors.systemGreen : CupertinoColors.systemGrey,
-                borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
+                color: _isConnected
+                    ? cupertino.CupertinoColors.systemGreen
+                    : cupertino.CupertinoColors.systemGrey,
+                borderRadius: cupertino.BorderRadius.circular(
+                  constants.Constants.BORDER_RADIUS_MEDIUM,
+                ),
                 onPressed: _testApiConnection,
-                child: const Text(
+                child: const cupertino.Text(
                   '測試連線',
-                  style: TextStyle(
-                    color: CupertinoColors.white,
-                    fontSize: Constants.FONT_SIZE_SMALL,
+                  style: cupertino.TextStyle(
+                    color: cupertino.CupertinoColors.white,
+                    fontSize: constants.Constants.FONT_SIZE_SMALL,
                   ),
                 ),
               ),
             ],
           ),
-          
+
           // 如果有快取資料，顯示快取操作按鈕
           if (hasCache) ...[
-            const SizedBox(height: Constants.SPACING_MEDIUM),
-            Row(
+            const cupertino.SizedBox(
+              height: constants.Constants.SPACING_MEDIUM,
+            ),
+            cupertino.Row(
               children: [
-                Expanded(
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: Constants.SPACING_SMALL),
-                    color: CupertinoColors.systemBlue,
-                    borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_SMALL),
-                    onPressed: _isConnected ? () => _fetchCurrentTime(forceOnline: true) : null,
-                    child: const Text(
+                cupertino.Expanded(
+                  child: cupertino.CupertinoButton(
+                    padding: const cupertino.EdgeInsets.symmetric(
+                      vertical: constants.Constants.SPACING_SMALL,
+                    ),
+                    color: cupertino.CupertinoColors.systemBlue,
+                    borderRadius: cupertino.BorderRadius.circular(
+                      constants.Constants.BORDER_RADIUS_SMALL,
+                    ),
+                    onPressed: _isConnected
+                        ? () => _fetchCurrentTime(forceOnline: true)
+                        : null,
+                    child: const cupertino.Text(
                       '強制更新',
-                      style: TextStyle(
-                        color: CupertinoColors.white,
-                        fontSize: Constants.FONT_SIZE_SMALL,
+                      style: cupertino.TextStyle(
+                        color: cupertino.CupertinoColors.white,
+                        fontSize: constants.Constants.FONT_SIZE_SMALL,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: Constants.SPACING_SMALL),
-                Expanded(
-                  child: CupertinoButton(
-                    padding: const EdgeInsets.symmetric(vertical: Constants.SPACING_SMALL),
-                    color: CupertinoColors.systemRed,
-                    borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_SMALL),
+                const cupertino.SizedBox(
+                  width: constants.Constants.SPACING_SMALL,
+                ),
+                cupertino.Expanded(
+                  child: cupertino.CupertinoButton(
+                    padding: const cupertino.EdgeInsets.symmetric(
+                      vertical: constants.Constants.SPACING_SMALL,
+                    ),
+                    color: cupertino.CupertinoColors.systemRed,
+                    borderRadius: cupertino.BorderRadius.circular(
+                      constants.Constants.BORDER_RADIUS_SMALL,
+                    ),
                     onPressed: _clearCache,
-                    child: const Text(
+                    child: const cupertino.Text(
                       '清除快取',
-                      style: TextStyle(
-                        color: CupertinoColors.white,
-                        fontSize: Constants.FONT_SIZE_SMALL,
+                      style: cupertino.TextStyle(
+                        color: cupertino.CupertinoColors.white,
+                        fontSize: constants.Constants.FONT_SIZE_SMALL,
                       ),
                     ),
                   ),
@@ -469,13 +522,13 @@ class _ScreenCState extends State<ScreenC> {
     try {
       await _apiService.clearAllCache();
       await _loadCacheStats();
-      
+
       if (mounted) {
         setState(() {
           _currentTimeData = null;
           _isOfflineMode = false;
         });
-        
+
         _showSuccessMessage('快取已清除');
       }
     } catch (e) {
@@ -484,105 +537,123 @@ class _ScreenCState extends State<ScreenC> {
   }
 
   /// STEP 12: 建立操作按鈕區域
-  Widget _buildActionButtons() {
-    return Column(
+  cupertino.Widget _buildActionButtons() {
+    return cupertino.Column(
       children: [
         // 主要呼叫按鈕
-        SizedBox(
+        cupertino.SizedBox(
           width: double.infinity,
-          child: CupertinoButton(
-            color: _isConnected ? CupertinoColors.activeBlue : CupertinoColors.systemGrey,
-            borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
+          child: cupertino.CupertinoButton(
+            color: _isConnected
+                ? cupertino.CupertinoColors.activeBlue
+                : cupertino.CupertinoColors.systemGrey,
+            borderRadius: cupertino.BorderRadius.circular(
+              constants.Constants.BORDER_RADIUS_LARGE,
+            ),
             onPressed: (_isConnected && !_isLoading) ? _fetchCurrentTime : null,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: cupertino.Row(
+              mainAxisAlignment: cupertino.MainAxisAlignment.center,
               children: [
                 if (_isLoading) ...[
-                  const CupertinoActivityIndicator(
+                  const cupertino.CupertinoActivityIndicator(
                     radius: 10,
-                    color: CupertinoColors.white,
+                    color: cupertino.CupertinoColors.white,
                   ),
-                  const SizedBox(width: Constants.SPACING_SMALL),
+                  const cupertino.SizedBox(
+                    width: constants.Constants.SPACING_SMALL,
+                  ),
                 ],
-                Icon(
-                  _isLoading ? CupertinoIcons.clock : CupertinoIcons.refresh_bold,
-                  color: CupertinoColors.white,
-                  size: Constants.ICON_SIZE_MEDIUM,
+                cupertino.Icon(
+                  _isLoading
+                      ? cupertino.CupertinoIcons.clock
+                      : cupertino.CupertinoIcons.refresh_bold,
+                  color: cupertino.CupertinoColors.white,
+                  size: constants.Constants.ICON_SIZE_MEDIUM,
                 ),
-                const SizedBox(width: Constants.SPACING_SMALL),
-                Text(
+                const cupertino.SizedBox(
+                  width: constants.Constants.SPACING_SMALL,
+                ),
+                cupertino.Text(
                   _isLoading ? '呼叫中...' : '獲取當前時間',
-                  style: const TextStyle(
-                    color: CupertinoColors.white,
-                    fontSize: Constants.FONT_SIZE_LARGE,
-                    fontWeight: FontWeight.w600,
+                  style: const cupertino.TextStyle(
+                    color: cupertino.CupertinoColors.white,
+                    fontSize: constants.Constants.FONT_SIZE_LARGE,
+                    fontWeight: cupertino.FontWeight.w600,
                   ),
                 ),
               ],
             ),
           ),
         ),
-        
-        const SizedBox(height: Constants.SPACING_MEDIUM),
-        
+
+        const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+
         // 次要按鈕行
-        Row(
+        cupertino.Row(
           children: [
-            Expanded(
-              child: CupertinoButton(
-                color: CupertinoColors.systemGrey5,
-                borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
+            cupertino.Expanded(
+              child: cupertino.CupertinoButton(
+                color: cupertino.CupertinoColors.systemGrey5,
+                borderRadius: cupertino.BorderRadius.circular(
+                  constants.Constants.BORDER_RADIUS_MEDIUM,
+                ),
                 onPressed: _checkNetworkStatus,
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: const cupertino.Row(
+                  mainAxisAlignment: cupertino.MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      CupertinoIcons.antenna_radiowaves_left_right,
-                      color: CupertinoColors.label,
-                      size: Constants.ICON_SIZE_SMALL,
+                    cupertino.Icon(
+                      cupertino.CupertinoIcons.antenna_radiowaves_left_right,
+                      color: cupertino.CupertinoColors.label,
+                      size: constants.Constants.ICON_SIZE_SMALL,
                     ),
-                    SizedBox(width: Constants.SPACING_SMALL),
-                    Text(
+                    cupertino.SizedBox(
+                      width: constants.Constants.SPACING_SMALL,
+                    ),
+                    cupertino.Text(
                       '檢查網路',
-                      style: TextStyle(
-                        color: CupertinoColors.label,
-                        fontSize: Constants.FONT_SIZE_MEDIUM,
+                      style: cupertino.TextStyle(
+                        color: cupertino.CupertinoColors.label,
+                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            
-            const SizedBox(width: Constants.SPACING_MEDIUM),
-            
-            Expanded(
-              child: CupertinoButton(
-                color: _autoRefreshTimer != null 
-                    ? CupertinoColors.systemOrange 
-                    : CupertinoColors.systemGrey5,
-                borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
+
+            const cupertino.SizedBox(width: constants.Constants.SPACING_MEDIUM),
+
+            cupertino.Expanded(
+              child: cupertino.CupertinoButton(
+                color: _autoRefreshTimer != null
+                    ? cupertino.CupertinoColors.systemOrange
+                    : cupertino.CupertinoColors.systemGrey5,
+                borderRadius: cupertino.BorderRadius.circular(
+                  constants.Constants.BORDER_RADIUS_MEDIUM,
+                ),
                 onPressed: _toggleAutoRefresh,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                child: cupertino.Row(
+                  mainAxisAlignment: cupertino.MainAxisAlignment.center,
                   children: [
-                    Icon(
-                      _autoRefreshTimer != null 
-                          ? CupertinoIcons.stop_circle 
-                          : CupertinoIcons.play_circle,
-                      color: _autoRefreshTimer != null 
-                          ? CupertinoColors.white 
-                          : CupertinoColors.label,
-                      size: Constants.ICON_SIZE_SMALL,
+                    cupertino.Icon(
+                      _autoRefreshTimer != null
+                          ? cupertino.CupertinoIcons.stop_circle
+                          : cupertino.CupertinoIcons.play_circle,
+                      color: _autoRefreshTimer != null
+                          ? cupertino.CupertinoColors.white
+                          : cupertino.CupertinoColors.label,
+                      size: constants.Constants.ICON_SIZE_SMALL,
                     ),
-                    const SizedBox(width: Constants.SPACING_SMALL),
-                    Text(
+                    const cupertino.SizedBox(
+                      width: constants.Constants.SPACING_SMALL,
+                    ),
+                    cupertino.Text(
                       _autoRefreshTimer != null ? '停止自動' : '自動刷新',
-                      style: TextStyle(
-                        color: _autoRefreshTimer != null 
-                            ? CupertinoColors.white 
-                            : CupertinoColors.label,
-                        fontSize: Constants.FONT_SIZE_MEDIUM,
+                      style: cupertino.TextStyle(
+                        color: _autoRefreshTimer != null
+                            ? cupertino.CupertinoColors.white
+                            : cupertino.CupertinoColors.label,
+                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
                       ),
                     ),
                   ],
@@ -596,40 +667,44 @@ class _ScreenCState extends State<ScreenC> {
   }
 
   /// STEP 13: 建立時間資料顯示卡片
-  Widget _buildTimeDataCard() {
+  cupertino.Widget _buildTimeDataCard() {
     if (_currentTimeData == null && _errorMessage == null) {
-      return Container(
-        padding: const EdgeInsets.all(Constants.SPACING_EXTRA_LARGE),
-        decoration: BoxDecoration(
-          color: CupertinoColors.systemGrey6,
-          borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
-          border: Border.all(
-            color: CupertinoColors.systemGrey4,
+      return cupertino.Container(
+        padding: const cupertino.EdgeInsets.all(
+          constants.Constants.SPACING_EXTRA_LARGE,
+        ),
+        decoration: cupertino.BoxDecoration(
+          color: cupertino.CupertinoColors.systemGrey6,
+          borderRadius: cupertino.BorderRadius.circular(
+            constants.Constants.BORDER_RADIUS_LARGE,
+          ),
+          border: cupertino.Border.all(
+            color: cupertino.CupertinoColors.systemGrey4,
             width: 1,
           ),
         ),
-        child: const Column(
+        child: const cupertino.Column(
           children: [
-            Icon(
-              CupertinoIcons.clock,
-              size: Constants.ICON_SIZE_EXTRA_LARGE * 2,
-              color: CupertinoColors.systemGrey3,
+            cupertino.Icon(
+              cupertino.CupertinoIcons.clock,
+              size: constants.Constants.ICON_SIZE_EXTRA_LARGE * 2,
+              color: cupertino.CupertinoColors.systemGrey3,
             ),
-            SizedBox(height: Constants.SPACING_MEDIUM),
-            Text(
+            cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+            cupertino.Text(
               '還沒有獲取時間資料',
-              style: TextStyle(
-                fontSize: Constants.FONT_SIZE_LARGE,
-                fontWeight: FontWeight.bold,
-                color: CupertinoColors.secondaryLabel,
+              style: cupertino.TextStyle(
+                fontSize: constants.Constants.FONT_SIZE_LARGE,
+                fontWeight: cupertino.FontWeight.bold,
+                color: cupertino.CupertinoColors.secondaryLabel,
               ),
             ),
-            SizedBox(height: Constants.SPACING_SMALL),
-            Text(
+            cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+            cupertino.Text(
               '點擊按鈕呼叫時間API',
-              style: TextStyle(
-                fontSize: Constants.FONT_SIZE_MEDIUM,
-                color: CupertinoColors.tertiaryLabel,
+              style: cupertino.TextStyle(
+                fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                color: cupertino.CupertinoColors.tertiaryLabel,
               ),
             ),
           ],
@@ -638,138 +713,158 @@ class _ScreenCState extends State<ScreenC> {
     }
 
     if (_errorMessage != null) {
-      return Container(
-        padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-        decoration: BoxDecoration(
-          color: CupertinoColors.systemRed.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
-          border: Border.all(
-            color: CupertinoColors.systemRed.withOpacity(0.3),
+      return cupertino.Container(
+        padding: const cupertino.EdgeInsets.all(
+          constants.Constants.SPACING_LARGE,
+        ),
+        decoration: cupertino.BoxDecoration(
+          color: cupertino.CupertinoColors.systemRed.withOpacity(0.1),
+          borderRadius: cupertino.BorderRadius.circular(
+            constants.Constants.BORDER_RADIUS_LARGE,
+          ),
+          border: cupertino.Border.all(
+            color: cupertino.CupertinoColors.systemRed.withOpacity(0.3),
             width: 1,
           ),
         ),
-        child: Column(
+        child: cupertino.Column(
           children: [
-            const Icon(
-              CupertinoIcons.exclamationmark_triangle,
-              size: Constants.ICON_SIZE_EXTRA_LARGE,
-              color: CupertinoColors.systemRed,
+            const cupertino.Icon(
+              cupertino.CupertinoIcons.exclamationmark_triangle,
+              size: constants.Constants.ICON_SIZE_EXTRA_LARGE,
+              color: cupertino.CupertinoColors.systemRed,
             ),
-            const SizedBox(height: Constants.SPACING_MEDIUM),
-            const Text(
+            const cupertino.SizedBox(
+              height: constants.Constants.SPACING_MEDIUM,
+            ),
+            const cupertino.Text(
               'API呼叫失敗',
-              style: TextStyle(
-                fontSize: Constants.FONT_SIZE_LARGE,
-                fontWeight: FontWeight.bold,
-                color: CupertinoColors.systemRed,
+              style: cupertino.TextStyle(
+                fontSize: constants.Constants.FONT_SIZE_LARGE,
+                fontWeight: cupertino.FontWeight.bold,
+                color: cupertino.CupertinoColors.systemRed,
               ),
             ),
-            const SizedBox(height: Constants.SPACING_SMALL),
-            Text(
+            const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+            cupertino.Text(
               _errorMessage!,
-              style: const TextStyle(
-                fontSize: Constants.FONT_SIZE_MEDIUM,
-                color: CupertinoColors.label,
+              style: const cupertino.TextStyle(
+                fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                color: cupertino.CupertinoColors.label,
               ),
-              textAlign: TextAlign.center,
+              textAlign: cupertino.TextAlign.center,
             ),
           ],
         ),
       );
     }
 
-    return Container(
-      padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-      decoration: BoxDecoration(
-        color: CupertinoColors.systemBlue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
-        border: Border.all(
-          color: CupertinoColors.systemBlue.withOpacity(0.3),
+    return cupertino.Container(
+      padding: const cupertino.EdgeInsets.all(
+        constants.Constants.SPACING_LARGE,
+      ),
+      decoration: cupertino.BoxDecoration(
+        color: cupertino.CupertinoColors.systemBlue.withOpacity(0.1),
+        borderRadius: cupertino.BorderRadius.circular(
+          constants.Constants.BORDER_RADIUS_LARGE,
+        ),
+        border: cupertino.Border.all(
+          color: cupertino.CupertinoColors.systemBlue.withOpacity(0.3),
           width: 1,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: cupertino.Column(
+        crossAxisAlignment: cupertino.CrossAxisAlignment.start,
         children: [
           // 標題行
-          Row(
+          cupertino.Row(
             children: [
-              const Icon(
-                CupertinoIcons.time,
-                color: CupertinoColors.systemBlue,
-                size: Constants.ICON_SIZE_MEDIUM,
+              const cupertino.Icon(
+                cupertino.CupertinoIcons.time,
+                color: cupertino.CupertinoColors.systemBlue,
+                size: constants.Constants.ICON_SIZE_MEDIUM,
               ),
-              const SizedBox(width: Constants.SPACING_SMALL),
-              const Text(
+              const cupertino.SizedBox(
+                width: constants.Constants.SPACING_SMALL,
+              ),
+              const cupertino.Text(
                 '時間資料',
-                style: TextStyle(
-                  fontSize: Constants.FONT_SIZE_LARGE,
-                  fontWeight: FontWeight.bold,
-                  color: CupertinoColors.systemBlue,
+                style: cupertino.TextStyle(
+                  fontSize: constants.Constants.FONT_SIZE_LARGE,
+                  fontWeight: cupertino.FontWeight.bold,
+                  color: cupertino.CupertinoColors.systemBlue,
                 ),
               ),
-              const Spacer(),
+              const cupertino.Spacer(),
               if (_currentTimeData!.isExpired)
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: Constants.SPACING_SMALL,
-                    vertical: Constants.SPACING_SMALL / 2,
+                cupertino.Container(
+                  padding: const cupertino.EdgeInsets.symmetric(
+                    horizontal: constants.Constants.SPACING_SMALL,
+                    vertical: constants.Constants.SPACING_SMALL / 2,
                   ),
-                  decoration: BoxDecoration(
-                    color: CupertinoColors.systemOrange,
-                    borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_SMALL),
+                  decoration: cupertino.BoxDecoration(
+                    color: cupertino.CupertinoColors.systemOrange,
+                    borderRadius: cupertino.BorderRadius.circular(
+                      constants.Constants.BORDER_RADIUS_SMALL,
+                    ),
                   ),
-                  child: const Text(
+                  child: const cupertino.Text(
                     '已過期',
-                    style: TextStyle(
-                      color: CupertinoColors.white,
-                      fontSize: Constants.FONT_SIZE_SMALL,
-                      fontWeight: FontWeight.w600,
+                    style: cupertino.TextStyle(
+                      color: cupertino.CupertinoColors.white,
+                      fontSize: constants.Constants.FONT_SIZE_SMALL,
+                      fontWeight: cupertino.FontWeight.w600,
                     ),
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: Constants.SPACING_LARGE),
-          
+          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+
           // 主要時間顯示
-          Container(
-            padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-            decoration: BoxDecoration(
-              color: CupertinoColors.systemBackground,
-              borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
+          cupertino.Container(
+            padding: const cupertino.EdgeInsets.all(
+              constants.Constants.SPACING_LARGE,
             ),
-            child: Column(
+            decoration: cupertino.BoxDecoration(
+              color: cupertino.CupertinoColors.systemBackground,
+              borderRadius: cupertino.BorderRadius.circular(
+                constants.Constants.BORDER_RADIUS_MEDIUM,
+              ),
+            ),
+            child: cupertino.Column(
               children: [
-                Text(
+                cupertino.Text(
                   _currentTimeData!.formattedDateTime,
-                  style: const TextStyle(
+                  style: const cupertino.TextStyle(
                     fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: CupertinoColors.systemBlue,
+                    fontWeight: cupertino.FontWeight.bold,
+                    color: cupertino.CupertinoColors.systemBlue,
                   ),
                 ),
-                const SizedBox(height: Constants.SPACING_SMALL),
-                Text(
+                const cupertino.SizedBox(
+                  height: constants.Constants.SPACING_SMALL,
+                ),
+                cupertino.Text(
                   _currentTimeData!.formattedTimezone,
-                  style: const TextStyle(
-                    fontSize: Constants.FONT_SIZE_LARGE,
-                    color: CupertinoColors.secondaryLabel,
+                  style: const cupertino.TextStyle(
+                    fontSize: constants.Constants.FONT_SIZE_LARGE,
+                    color: cupertino.CupertinoColors.secondaryLabel,
                   ),
                 ),
               ],
             ),
           ),
-          
-          const SizedBox(height: Constants.SPACING_LARGE),
-          
+
+          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+
           // 詳細資訊
           _buildInfoRow('時區', _currentTimeData!.timezone),
-          const SizedBox(height: Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
           _buildInfoRow('UTC偏移', _currentTimeData!.utcOffset.toString()),
-          const SizedBox(height: Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
           _buildInfoRow('星期幾', _currentTimeData!.weekDayText),
-          const SizedBox(height: Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
           _buildInfoRow('一年中第幾天', _currentTimeData!.dayOfYear.toString()),
         ],
       ),
@@ -777,23 +872,23 @@ class _ScreenCState extends State<ScreenC> {
   }
 
   /// STEP 14: 建立資訊行
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  cupertino.Widget _buildInfoRow(String label, String value) {
+    return cupertino.Row(
+      mainAxisAlignment: cupertino.MainAxisAlignment.spaceBetween,
       children: [
-        Text(
+        cupertino.Text(
           label,
-          style: const TextStyle(
-            fontSize: Constants.FONT_SIZE_MEDIUM,
-            color: CupertinoColors.secondaryLabel,
+          style: const cupertino.TextStyle(
+            fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+            color: cupertino.CupertinoColors.secondaryLabel,
           ),
         ),
-        Text(
+        cupertino.Text(
           value,
-          style: const TextStyle(
-            fontSize: Constants.FONT_SIZE_MEDIUM,
-            fontWeight: FontWeight.w600,
-            color: CupertinoColors.label,
+          style: const cupertino.TextStyle(
+            fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+            fontWeight: cupertino.FontWeight.w600,
+            color: cupertino.CupertinoColors.label,
           ),
         ),
       ],
@@ -801,52 +896,60 @@ class _ScreenCState extends State<ScreenC> {
   }
 
   /// STEP 15: 建立統計資訊卡片
-  Widget _buildStatsCard() {
-    return Container(
-      padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-      decoration: BoxDecoration(
-        color: CupertinoColors.systemPurple.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
-        border: Border.all(
-          color: CupertinoColors.systemPurple.withOpacity(0.3),
+  cupertino.Widget _buildStatsCard() {
+    return cupertino.Container(
+      padding: const cupertino.EdgeInsets.all(
+        constants.Constants.SPACING_LARGE,
+      ),
+      decoration: cupertino.BoxDecoration(
+        color: cupertino.CupertinoColors.systemPurple.withOpacity(0.1),
+        borderRadius: cupertino.BorderRadius.circular(
+          constants.Constants.BORDER_RADIUS_LARGE,
+        ),
+        border: cupertino.Border.all(
+          color: cupertino.CupertinoColors.systemPurple.withOpacity(0.3),
           width: 1,
         ),
       ),
-      child: Row(
+      child: cupertino.Row(
         children: [
-          const Icon(
-            CupertinoIcons.chart_bar_alt_fill,
-            color: CupertinoColors.systemPurple,
-            size: Constants.ICON_SIZE_MEDIUM,
+          const cupertino.Icon(
+            cupertino.CupertinoIcons.chart_bar_alt_fill,
+            color: cupertino.CupertinoColors.systemPurple,
+            size: constants.Constants.ICON_SIZE_MEDIUM,
           ),
-          const SizedBox(width: Constants.SPACING_MEDIUM),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          const cupertino.SizedBox(width: constants.Constants.SPACING_MEDIUM),
+          cupertino.Expanded(
+            child: cupertino.Column(
+              crossAxisAlignment: cupertino.CrossAxisAlignment.start,
               children: [
-                const Text(
+                const cupertino.Text(
                   'API使用統計',
-                  style: TextStyle(
-                    fontSize: Constants.FONT_SIZE_LARGE,
-                    fontWeight: FontWeight.bold,
-                    color: CupertinoColors.systemPurple,
+                  style: cupertino.TextStyle(
+                    fontSize: constants.Constants.FONT_SIZE_LARGE,
+                    fontWeight: cupertino.FontWeight.bold,
+                    color: cupertino.CupertinoColors.systemPurple,
                   ),
                 ),
-                const SizedBox(height: Constants.SPACING_SMALL),
-                Text(
+                const cupertino.SizedBox(
+                  height: constants.Constants.SPACING_SMALL,
+                ),
+                cupertino.Text(
                   '已呼叫 $_apiCallCount 次 API',
-                  style: const TextStyle(
-                    fontSize: Constants.FONT_SIZE_MEDIUM,
-                    color: CupertinoColors.label,
+                  style: const cupertino.TextStyle(
+                    fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                    color: cupertino.CupertinoColors.label,
                   ),
                 ),
                 if (_lastUpdateTime != null) ...[
-                  const SizedBox(height: Constants.SPACING_SMALL / 2),
-                  Text(
+                  const cupertino.SizedBox(
+                    height: constants.Constants.SPACING_SMALL / 2,
+                  ),
+                  cupertino.Text(
                     '最後更新：${_lastUpdateTime!.hour.toString().padLeft(2, '0')}:${_lastUpdateTime!.minute.toString().padLeft(2, '0')}:${_lastUpdateTime!.second.toString().padLeft(2, '0')}',
-                    style: const TextStyle(
-                      fontSize: Constants.FONT_SIZE_SMALL,
-                      color: CupertinoColors.secondaryLabel,
+                    style: const cupertino.TextStyle(
+                      fontSize: constants.Constants.FONT_SIZE_SMALL,
+                      color: cupertino.CupertinoColors.secondaryLabel,
                     ),
                   ),
                 ],
@@ -854,21 +957,23 @@ class _ScreenCState extends State<ScreenC> {
             ),
           ),
           if (_autoRefreshTimer != null)
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: Constants.SPACING_SMALL,
-                vertical: Constants.SPACING_SMALL / 2,
+            cupertino.Container(
+              padding: const cupertino.EdgeInsets.symmetric(
+                horizontal: constants.Constants.SPACING_SMALL,
+                vertical: constants.Constants.SPACING_SMALL / 2,
               ),
-              decoration: BoxDecoration(
-                color: CupertinoColors.systemOrange,
-                borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_SMALL),
+              decoration: cupertino.BoxDecoration(
+                color: cupertino.CupertinoColors.systemOrange,
+                borderRadius: cupertino.BorderRadius.circular(
+                  constants.Constants.BORDER_RADIUS_SMALL,
+                ),
               ),
-              child: const Text(
+              child: const cupertino.Text(
                 '自動刷新中',
-                style: TextStyle(
-                  color: CupertinoColors.white,
-                  fontSize: Constants.FONT_SIZE_SMALL,
-                  fontWeight: FontWeight.w600,
+                style: cupertino.TextStyle(
+                  color: cupertino.CupertinoColors.white,
+                  fontSize: constants.Constants.FONT_SIZE_SMALL,
+                  fontWeight: cupertino.FontWeight.w600,
                 ),
               ),
             ),
@@ -878,47 +983,53 @@ class _ScreenCState extends State<ScreenC> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      child: ListView(
-        padding: const EdgeInsets.all(Constants.SPACING_LARGE),
+  cupertino.Widget build(cupertino.BuildContext context) {
+    return cupertino.SafeArea(
+      child: cupertino.ListView(
+        padding: const cupertino.EdgeInsets.all(
+          constants.Constants.SPACING_LARGE,
+        ),
         children: [
           // STEP 16.01: 頁面標題
-          const Text(
+          const cupertino.Text(
             'API呼叫功能',
-            style: TextStyle(
-              fontSize: Constants.FONT_SIZE_EXTRA_LARGE,
-              fontWeight: FontWeight.bold,
-              color: CupertinoColors.label,
+            style: cupertino.TextStyle(
+              fontSize: constants.Constants.FONT_SIZE_EXTRA_LARGE,
+              fontWeight: cupertino.FontWeight.bold,
+              color: cupertino.CupertinoColors.label,
             ),
           ),
-          const SizedBox(height: Constants.SPACING_SMALL),
-          const Text(
+          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+          const cupertino.Text(
             '呼叫時間API並顯示即時時間資訊',
-            style: TextStyle(
-              fontSize: Constants.FONT_SIZE_MEDIUM,
-              color: CupertinoColors.secondaryLabel,
+            style: cupertino.TextStyle(
+              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+              color: cupertino.CupertinoColors.secondaryLabel,
               height: 1.5,
             ),
           ),
-          const SizedBox(height: Constants.SPACING_EXTRA_LARGE),
-          
+          const cupertino.SizedBox(
+            height: constants.Constants.SPACING_EXTRA_LARGE,
+          ),
+
           // STEP 16.02: 網路狀態卡片
           _buildNetworkStatusCard(),
-          const SizedBox(height: Constants.SPACING_LARGE),
-          
+          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+
           // STEP 16.03: 統計卡片
           _buildStatsCard(),
-          const SizedBox(height: Constants.SPACING_LARGE),
-          
+          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+
           // STEP 16.04: 操作按鈕
           _buildActionButtons(),
-          const SizedBox(height: Constants.SPACING_EXTRA_LARGE),
-          
+          const cupertino.SizedBox(
+            height: constants.Constants.SPACING_EXTRA_LARGE,
+          ),
+
           // STEP 16.05: 時間資料顯示
           _buildTimeDataCard(),
         ],
       ),
     );
   }
-} 
+}

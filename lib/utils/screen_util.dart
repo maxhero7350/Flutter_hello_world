@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+// ===== FLUTTER CORE =====
+import 'package:flutter/cupertino.dart' as cupertino;
 
 /// 響應式設計工具類
 /// 提供螢幕尺寸相關的工具方法和適配邏輯
@@ -9,18 +10,18 @@ class ScreenUtil {
   ScreenUtil._();
 
   // STEP 02: 初始化螢幕資訊
-  late MediaQueryData _mediaQueryData;
+  late cupertino.MediaQueryData _mediaQueryData;
   late double _screenWidth;
   late double _screenHeight;
   late double _pixelRatio;
   late double _statusBarHeight;
   late double _bottomBarHeight;
-  late Orientation _orientation;
+  late cupertino.Orientation _orientation;
 
   /// STEP 03: 初始化方法
-  void init(BuildContext context) {
+  void init(cupertino.BuildContext context) {
     // STEP 03.01: 取得MediaQuery資料
-    _mediaQueryData = MediaQuery.of(context);
+    _mediaQueryData = cupertino.MediaQuery.of(context);
     _screenWidth = _mediaQueryData.size.width;
     _screenHeight = _mediaQueryData.size.height;
     _pixelRatio = _mediaQueryData.devicePixelRatio;
@@ -45,13 +46,13 @@ class ScreenUtil {
   double get bottomBarHeight => _bottomBarHeight;
 
   /// STEP 09: 螢幕方向
-  Orientation get orientation => _orientation;
+  cupertino.Orientation get orientation => _orientation;
 
   /// STEP 10: 是否為橫向模式
-  bool get isLandscape => _orientation == Orientation.landscape;
+  bool get isLandscape => _orientation == cupertino.Orientation.landscape;
 
   /// STEP 11: 是否為直向模式
-  bool get isPortrait => _orientation == Orientation.portrait;
+  bool get isPortrait => _orientation == cupertino.Orientation.portrait;
 
   /// STEP 12: 裝置類型判斷
   DeviceType get deviceType {
@@ -155,13 +156,13 @@ class ScreenUtil {
   bool get isLargeScreen => _screenWidth > 414;
 
   /// STEP 22: 取得安全區域
-  EdgeInsets get safeAreaPadding => EdgeInsets.only(
+  cupertino.EdgeInsets get safeAreaPadding => cupertino.EdgeInsets.only(
     top: _statusBarHeight,
     bottom: _bottomBarHeight,
   );
 
   /// STEP 23: 響應式EdgeInsets
-  EdgeInsets responsivePadding({
+  cupertino.EdgeInsets responsivePadding({
     double? all,
     double? horizontal,
     double? vertical,
@@ -171,7 +172,7 @@ class ScreenUtil {
     double? right,
   }) {
     // STEP 23.01: 計算響應式padding值
-    return EdgeInsets.only(
+    return cupertino.EdgeInsets.only(
       top: responsiveSpacing(top ?? vertical ?? all ?? 0),
       bottom: responsiveSpacing(bottom ?? vertical ?? all ?? 0),
       left: responsiveSpacing(left ?? horizontal ?? all ?? 0),
@@ -180,31 +181,31 @@ class ScreenUtil {
   }
 
   /// STEP 24: 響應式BorderRadius
-  BorderRadius responsiveBorderRadius(double radius) {
+  cupertino.BorderRadius responsiveBorderRadius(double radius) {
     // STEP 24.01: 根據裝置類型調整圓角半徑
     double responsiveRadius = responsiveSpacing(radius);
-    return BorderRadius.circular(responsiveRadius);
+    return cupertino.BorderRadius.circular(responsiveRadius);
   }
 }
 
 /// 裝置類型枚舉
 enum DeviceType {
-  mobile,   // 手機
-  tablet,   // 平板
-  desktop,  // 桌面
+  mobile, // 手機
+  tablet, // 平板
+  desktop, // 桌面
 }
 
 /// ScreenUtil擴展方法
 extension ScreenUtilExtension on num {
   /// 響應式寬度
   double get w => ScreenUtil.instance.responsiveWidth(toDouble());
-  
-  /// 響應式高度  
+
+  /// 響應式高度
   double get h => ScreenUtil.instance.responsiveHeight(toDouble());
-  
+
   /// 響應式字體大小
   double get sp => ScreenUtil.instance.responsiveFontSize(toDouble());
-  
+
   /// 響應式間距
   double get r => ScreenUtil.instance.responsiveSpacing(toDouble());
 }

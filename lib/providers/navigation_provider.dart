@@ -1,21 +1,21 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart' as foundation;
 
 /// 導航狀態管理
-class NavigationProvider extends ChangeNotifier {
+class NavigationProvider extends foundation.ChangeNotifier {
   // STEP 01: 導航基本狀態
   int _currentIndex = 0;
   bool _isSidebarOpen = false;
-  List<String> _navigationHistory = [];
+  final List<String> _navigationHistory = [];
   int _navigationCount = 0;
   String _lastVisitedPage = '';
-  
+
   // STEP 02: Getters - 取得導航狀態
   int get currentIndex => _currentIndex;
   bool get isSidebarOpen => _isSidebarOpen;
   List<String> get navigationHistory => List.unmodifiable(_navigationHistory);
   int get navigationCount => _navigationCount;
   String get lastVisitedPage => _lastVisitedPage;
-  
+
   // STEP 03: 設定當前選中的索引
   void setCurrentIndex(int index) {
     // STEP 03.01: 記錄上一個頁面
@@ -29,7 +29,7 @@ class NavigationProvider extends ChangeNotifier {
     // STEP 03.05: 通知監聽者狀態變更
     notifyListeners();
   }
-  
+
   // STEP 04: 切換側邊欄狀態
   void toggleSidebar() {
     // STEP 04.01: 切換側邊欄開關狀態
@@ -37,7 +37,7 @@ class NavigationProvider extends ChangeNotifier {
     // STEP 04.02: 通知監聽者狀態變更
     notifyListeners();
   }
-  
+
   // STEP 05: 關閉側邊欄
   void closeSidebar() {
     // STEP 05.01: 檢查側邊欄是否開啟
@@ -48,7 +48,7 @@ class NavigationProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   // STEP 06: 添加到導航歷史
   void _addToHistory(String pageName) {
     // STEP 06.01: 添加頁面到歷史記錄
@@ -59,7 +59,7 @@ class NavigationProvider extends ChangeNotifier {
       _navigationHistory.removeAt(0);
     }
   }
-  
+
   // STEP 07: 根據索引取得頁面名稱
   String _getPageNameByIndex(int index) {
     // STEP 07.01: 根據索引返回對應的頁面名稱
@@ -74,7 +74,7 @@ class NavigationProvider extends ChangeNotifier {
         return 'Unknown';
     }
   }
-  
+
   // STEP 08: 重置導航狀態
   void resetNavigation() {
     // STEP 08.01: 重置所有導航相關狀態
@@ -86,7 +86,7 @@ class NavigationProvider extends ChangeNotifier {
     // STEP 08.02: 通知監聽者狀態變更
     notifyListeners();
   }
-  
+
   // STEP 09: 取得導航統計資訊
   Map<String, dynamic> getNavigationStats() {
     // STEP 09.01: 返回導航統計資訊

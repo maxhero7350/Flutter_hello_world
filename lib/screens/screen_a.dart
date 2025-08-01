@@ -1,19 +1,23 @@
-import 'package:flutter/cupertino.dart';
+// ===== FLUTTER CORE =====
+import 'package:flutter/cupertino.dart' as cupertino;
 
-import '../utils/constants.dart';
-import 'screen_a1.dart';
-import 'screen_a2.dart';
+// ===== CUSTOM UTILS =====
+import '../utils/constants.dart' as constants;
+
+// ===== CUSTOM SCREENS =====
+import 'screen_a1.dart' as screen_a1;
+import 'screen_a2.dart' as screen_a2;
 
 /// A頁面 - 導航練習
 /// 提供兩層跳轉頁面功能，練習Flutter頁面導航
-class ScreenA extends StatefulWidget {
+class ScreenA extends cupertino.StatefulWidget {
   const ScreenA({super.key});
 
   @override
-  State<ScreenA> createState() => _ScreenAState();
+  cupertino.State<ScreenA> createState() => _ScreenAState();
 }
 
-class _ScreenAState extends State<ScreenA> {
+class _ScreenAState extends cupertino.State<ScreenA> {
   int _navigationCount = 0;
   String _lastVisitedPage = '無';
 
@@ -25,10 +29,10 @@ class _ScreenAState extends State<ScreenA> {
     });
 
     // STEP 01.02: 導航到A1頁面並等待返回結果
-    final result = await Navigator.push(
+    final result = await cupertino.Navigator.push(
       context,
-      CupertinoPageRoute(
-        builder: (context) => ScreenA1(
+      cupertino.CupertinoPageRoute(
+        builder: (context) => screen_a1.ScreenA1(
           fromPage: 'A頁面',
           navigationCount: _navigationCount,
         ),
@@ -49,10 +53,10 @@ class _ScreenAState extends State<ScreenA> {
       _navigationCount++;
     });
 
-    final result = await Navigator.push(
+    final result = await cupertino.Navigator.push(
       context,
-      CupertinoPageRoute(
-        builder: (context) => ScreenA2(
+      cupertino.CupertinoPageRoute(
+        builder: (context) => screen_a2.ScreenA2(
           fromPage: 'A頁面 (直接)',
           navigationCount: _navigationCount,
           message: '這是從A頁面直接跳轉到A2頁面的示例',
@@ -76,83 +80,97 @@ class _ScreenAState extends State<ScreenA> {
   }
 
   /// STEP 04: 建立功能卡片
-  Widget _buildFeatureCard({
+  cupertino.Widget _buildFeatureCard({
     required String title,
     required String description,
-    required IconData icon,
-    required VoidCallback onTap,
-    Color? cardColor,
+    required cupertino.IconData icon,
+    required cupertino.VoidCallback onTap,
+    cupertino.Color? cardColor,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: Constants.SPACING_MEDIUM),
-      child: CupertinoButton(
-        padding: EdgeInsets.zero,
+    return cupertino.Container(
+      margin: const cupertino.EdgeInsets.only(
+        bottom: constants.Constants.SPACING_MEDIUM,
+      ),
+      child: cupertino.CupertinoButton(
+        padding: cupertino.EdgeInsets.zero,
         onPressed: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-          decoration: BoxDecoration(
-            color: cardColor ?? CupertinoColors.systemBackground,
-            borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
-            border: Border.all(
-              color: CupertinoColors.systemGrey4,
+        child: cupertino.Container(
+          padding: const cupertino.EdgeInsets.all(
+            constants.Constants.SPACING_LARGE,
+          ),
+          decoration: cupertino.BoxDecoration(
+            color: cardColor ?? cupertino.CupertinoColors.systemBackground,
+            borderRadius: cupertino.BorderRadius.circular(
+              constants.Constants.BORDER_RADIUS_LARGE,
+            ),
+            border: cupertino.Border.all(
+              color: cupertino.CupertinoColors.systemGrey4,
               width: 1,
             ),
             boxShadow: [
-              BoxShadow(
-                color: CupertinoColors.systemGrey.withOpacity(0.1),
+              cupertino.BoxShadow(
+                color: cupertino.CupertinoColors.systemGrey.withOpacity(0.1),
                 blurRadius: 8,
-                offset: const Offset(0, 2),
+                offset: const cupertino.Offset(0, 2),
               ),
             ],
           ),
-          child: Row(
+          child: cupertino.Row(
             children: [
               // STEP 04.01: 圖標區域
-              Container(
-                padding: const EdgeInsets.all(Constants.SPACING_MEDIUM),
-                decoration: BoxDecoration(
-                  color: CupertinoColors.activeBlue.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
+              cupertino.Container(
+                padding: const cupertino.EdgeInsets.all(
+                  constants.Constants.SPACING_MEDIUM,
                 ),
-                child: Icon(
+                decoration: cupertino.BoxDecoration(
+                  color: cupertino.CupertinoColors.activeBlue.withOpacity(0.1),
+                  borderRadius: cupertino.BorderRadius.circular(
+                    constants.Constants.BORDER_RADIUS_MEDIUM,
+                  ),
+                ),
+                child: cupertino.Icon(
                   icon,
-                  size: Constants.ICON_SIZE_LARGE,
-                  color: CupertinoColors.activeBlue,
+                  size: constants.Constants.ICON_SIZE_LARGE,
+                  color: cupertino.CupertinoColors.activeBlue,
                 ),
               ),
-              const SizedBox(width: Constants.SPACING_MEDIUM),
-              
+              const cupertino.SizedBox(
+                width: constants.Constants.SPACING_MEDIUM,
+              ),
+
               // STEP 04.02: 文字區域
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              cupertino.Expanded(
+                child: cupertino.Column(
+                  crossAxisAlignment: cupertino.CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    cupertino.Text(
                       title,
-                      style: const TextStyle(
-                        fontSize: Constants.FONT_SIZE_LARGE,
-                        fontWeight: FontWeight.bold,
-                        color: CupertinoColors.label,
+                      style: const cupertino.TextStyle(
+                        fontSize: constants.Constants.FONT_SIZE_LARGE,
+                        fontWeight: cupertino.FontWeight.bold,
+                        color: cupertino.CupertinoColors.label,
                       ),
                     ),
-                    const SizedBox(height: Constants.SPACING_SMALL),
-                    Text(
+                    const cupertino.SizedBox(
+                      height: constants.Constants.SPACING_SMALL,
+                    ),
+                    cupertino.Text(
                       description,
-                      style: const TextStyle(
-                        fontSize: Constants.FONT_SIZE_MEDIUM,
-                        color: CupertinoColors.secondaryLabel,
+                      style: const cupertino.TextStyle(
+                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                        color: cupertino.CupertinoColors.secondaryLabel,
                         height: 1.4,
                       ),
                     ),
                   ],
                 ),
               ),
-              
+
               // STEP 04.03: 箭頭指示
-              const Icon(
-                CupertinoIcons.chevron_right,
-                color: CupertinoColors.systemGrey3,
-                size: Constants.ICON_SIZE_MEDIUM,
+              const cupertino.Icon(
+                cupertino.CupertinoIcons.chevron_right,
+                color: cupertino.CupertinoColors.systemGrey3,
+                size: constants.Constants.ICON_SIZE_MEDIUM,
               ),
             ],
           ),
@@ -162,42 +180,46 @@ class _ScreenAState extends State<ScreenA> {
   }
 
   /// STEP 05: 建立狀態資訊卡片
-  Widget _buildStatusCard() {
-    return Container(
-      padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-      decoration: BoxDecoration(
-        color: CupertinoColors.systemBlue.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_LARGE),
-        border: Border.all(
-          color: CupertinoColors.systemBlue.withOpacity(0.3),
+  cupertino.Widget _buildStatusCard() {
+    return cupertino.Container(
+      padding: const cupertino.EdgeInsets.all(
+        constants.Constants.SPACING_LARGE,
+      ),
+      decoration: cupertino.BoxDecoration(
+        color: cupertino.CupertinoColors.systemBlue.withOpacity(0.1),
+        borderRadius: cupertino.BorderRadius.circular(
+          constants.Constants.BORDER_RADIUS_LARGE,
+        ),
+        border: cupertino.Border.all(
+          color: cupertino.CupertinoColors.systemBlue.withOpacity(0.3),
           width: 1,
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: cupertino.Column(
+        crossAxisAlignment: cupertino.CrossAxisAlignment.start,
         children: [
-          const Row(
+          const cupertino.Row(
             children: [
-              Icon(
-                CupertinoIcons.info_circle,
-                color: CupertinoColors.systemBlue,
-                size: Constants.ICON_SIZE_MEDIUM,
+              cupertino.Icon(
+                cupertino.CupertinoIcons.info_circle,
+                color: cupertino.CupertinoColors.systemBlue,
+                size: constants.Constants.ICON_SIZE_MEDIUM,
               ),
-              SizedBox(width: Constants.SPACING_SMALL),
-              Text(
+              cupertino.SizedBox(width: constants.Constants.SPACING_SMALL),
+              cupertino.Text(
                 '導航狀態',
-                style: TextStyle(
-                  fontSize: Constants.FONT_SIZE_LARGE,
-                  fontWeight: FontWeight.bold,
-                  color: CupertinoColors.systemBlue,
+                style: cupertino.TextStyle(
+                  fontSize: constants.Constants.FONT_SIZE_LARGE,
+                  fontWeight: cupertino.FontWeight.bold,
+                  color: cupertino.CupertinoColors.systemBlue,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: Constants.SPACING_MEDIUM),
-          
+          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+
           _buildStatusRow('導航次數', '$_navigationCount 次'),
-          const SizedBox(height: Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
           _buildStatusRow('最後訪問', _lastVisitedPage),
         ],
       ),
@@ -205,23 +227,23 @@ class _ScreenAState extends State<ScreenA> {
   }
 
   /// STEP 06: 建立狀態行
-  Widget _buildStatusRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  cupertino.Widget _buildStatusRow(String label, String value) {
+    return cupertino.Row(
+      mainAxisAlignment: cupertino.MainAxisAlignment.spaceBetween,
       children: [
-        Text(
+        cupertino.Text(
           label,
-          style: const TextStyle(
-            fontSize: Constants.FONT_SIZE_MEDIUM,
-            color: CupertinoColors.secondaryLabel,
+          style: const cupertino.TextStyle(
+            fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+            color: cupertino.CupertinoColors.secondaryLabel,
           ),
         ),
-        Text(
+        cupertino.Text(
           value,
-          style: const TextStyle(
-            fontSize: Constants.FONT_SIZE_MEDIUM,
-            fontWeight: FontWeight.w600,
-            color: CupertinoColors.label,
+          style: const cupertino.TextStyle(
+            fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+            fontWeight: cupertino.FontWeight.w600,
+            color: cupertino.CupertinoColors.label,
           ),
         ),
       ],
@@ -229,80 +251,86 @@ class _ScreenAState extends State<ScreenA> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(Constants.SPACING_LARGE),
-          children: [
-            // STEP 08.01: 頁面介紹
-            const Text(
-              '歡迎來到A頁面！',
-              style: TextStyle(
-                fontSize: Constants.FONT_SIZE_EXTRA_LARGE,
-                fontWeight: FontWeight.bold,
-                color: CupertinoColors.label,
-              ),
-            ),
-            const SizedBox(height: Constants.SPACING_SMALL),
-            const Text(
-              '這裡可以練習Flutter的頁面導航功能，體驗兩層跳轉頁面的導航流程。',
-              style: TextStyle(
-                fontSize: Constants.FONT_SIZE_MEDIUM,
-                color: CupertinoColors.secondaryLabel,
-                height: 1.5,
-              ),
-            ),
-            const SizedBox(height: Constants.SPACING_EXTRA_LARGE),
-            
-            // STEP 08.02: 導航功能卡片
-            _buildFeatureCard(
-              title: '前往A1頁面',
-              description: '導航到第一層頁面，然後可以繼續前往A2頁面',
-              icon: CupertinoIcons.arrow_right_circle,
-              onTap: _navigateToA1,
-            ),
-            
-            _buildFeatureCard(
-              title: '直接前往A2頁面',
-              description: '跳過A1頁面，直接導航到第二層頁面',
-              icon: CupertinoIcons.arrow_right_square,
-              onTap: _navigateDirectlyToA2,
-            ),
-            
-            const SizedBox(height: Constants.SPACING_LARGE),
-            
-            // STEP 08.03: 狀態資訊
-            _buildStatusCard(),
-            
-            const SizedBox(height: Constants.SPACING_LARGE),
-            
-            // STEP 08.04: 重置按鈕
-            CupertinoButton(
-              color: CupertinoColors.systemGrey5,
-              borderRadius: BorderRadius.circular(Constants.BORDER_RADIUS_MEDIUM),
-              onPressed: _resetNavigationState,
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    CupertinoIcons.refresh,
-                    color: CupertinoColors.label,
-                    size: Constants.ICON_SIZE_MEDIUM,
-                  ),
-                  SizedBox(width: Constants.SPACING_SMALL),
-                  Text(
-                    '重置導航狀態',
-                    style: TextStyle(
-                      color: CupertinoColors.label,
-                      fontSize: Constants.FONT_SIZE_MEDIUM,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+  cupertino.Widget build(cupertino.BuildContext context) {
+    return cupertino.SafeArea(
+      child: cupertino.ListView(
+        padding: const cupertino.EdgeInsets.all(
+          constants.Constants.SPACING_LARGE,
         ),
-      );
+        children: [
+          // STEP 08.01: 頁面介紹
+          const cupertino.Text(
+            '歡迎來到A頁面！',
+            style: cupertino.TextStyle(
+              fontSize: constants.Constants.FONT_SIZE_EXTRA_LARGE,
+              fontWeight: cupertino.FontWeight.bold,
+              color: cupertino.CupertinoColors.label,
+            ),
+          ),
+          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+          const cupertino.Text(
+            '這裡可以練習Flutter的頁面導航功能，體驗兩層跳轉頁面的導航流程。',
+            style: cupertino.TextStyle(
+              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+              color: cupertino.CupertinoColors.secondaryLabel,
+              height: 1.5,
+            ),
+          ),
+          const cupertino.SizedBox(
+            height: constants.Constants.SPACING_EXTRA_LARGE,
+          ),
+
+          // STEP 08.02: 導航功能卡片
+          _buildFeatureCard(
+            title: '前往A1頁面',
+            description: '導航到第一層頁面，然後可以繼續前往A2頁面',
+            icon: cupertino.CupertinoIcons.arrow_right_circle,
+            onTap: _navigateToA1,
+          ),
+
+          _buildFeatureCard(
+            title: '直接前往A2頁面',
+            description: '跳過A1頁面，直接導航到第二層頁面',
+            icon: cupertino.CupertinoIcons.arrow_right_square,
+            onTap: _navigateDirectlyToA2,
+          ),
+
+          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+
+          // STEP 08.03: 狀態資訊
+          _buildStatusCard(),
+
+          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+
+          // STEP 08.04: 重置按鈕
+          cupertino.CupertinoButton(
+            color: cupertino.CupertinoColors.systemGrey5,
+            borderRadius: cupertino.BorderRadius.circular(
+              constants.Constants.BORDER_RADIUS_MEDIUM,
+            ),
+            onPressed: _resetNavigationState,
+            child: const cupertino.Row(
+              mainAxisAlignment: cupertino.MainAxisAlignment.center,
+              children: [
+                cupertino.Icon(
+                  cupertino.CupertinoIcons.refresh,
+                  color: cupertino.CupertinoColors.label,
+                  size: constants.Constants.ICON_SIZE_MEDIUM,
+                ),
+                cupertino.SizedBox(width: constants.Constants.SPACING_SMALL),
+                cupertino.Text(
+                  '重置導航狀態',
+                  style: cupertino.TextStyle(
+                    color: cupertino.CupertinoColors.label,
+                    fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                    fontWeight: cupertino.FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
-} 
+}
