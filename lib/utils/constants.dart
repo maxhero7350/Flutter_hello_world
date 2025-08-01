@@ -21,12 +21,18 @@ class Constants {
   static const String COLUMN_UPDATED_AT = 'updated_at';
 
   // === API相關常數 ===
-  static const String TIME_API_BASE_URL = 'http://worldtimeapi.org/api';
+  // 使用更穩定的時間API
+  static const String TIME_API_BASE_URL = 'https://worldtimeapi.org/api';
   static const String TIME_API_TIMEZONE = 'timezone/Asia/Taipei';
-  static const String TIME_API_FULL_URL = '$TIME_API_BASE_URL/$TIME_API_TIMEZONE';
+  static const String TIME_API_FULL_URL =
+      '$TIME_API_BASE_URL/$TIME_API_TIMEZONE';
+
+  // 備用時間API（如果主要API失敗）
+  static const String BACKUP_TIME_API_URL =
+      'https://timeapi.io/api/time/current/zone?timeZone=Asia/Taipei';
 
   // API請求逾時時間（秒）
-  static const int API_TIMEOUT_SECONDS = 30;
+  static const int API_TIMEOUT_SECONDS = 10;
 
   // === UI相關常數 ===
   // 間距
@@ -91,7 +97,8 @@ class Constants {
   static const int MAX_MESSAGE_LENGTH = 500;
 
   // === 資料庫SQL語句 ===
-  static const String CREATE_TABLE_MESSAGES = '''
+  static const String CREATE_TABLE_MESSAGES =
+      '''
     CREATE TABLE $TABLE_MESSAGES (
       $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
       $COLUMN_CONTENT TEXT NOT NULL,
@@ -112,4 +119,4 @@ class Constants {
   // === 預設值 ===
   static const String DEFAULT_USERNAME = '使用者';
   static const String DEFAULT_MESSAGE = '預設訊息';
-} 
+}

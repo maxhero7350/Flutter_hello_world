@@ -1,3 +1,5 @@
+library;
+
 /// Provider統一導出檔案
 /// 提供所有Provider的統一入口點
 

@@ -58,18 +58,18 @@ class ApiService {
       }
 
       // STEP 02.03: 線上模式 - 檢查快取有效性
-      if (connected && !forceOnline) {
-        final isValidCache = await _offlineStorage.isCacheValid(
-          maxAgeMinutes: 15,
-        );
-        if (isValidCache) {
-          print('快取資料有效，使用快取資料');
-          final cachedData = await _offlineStorage.getLastTimeData();
-          if (cachedData != null) {
-            return cachedData;
-          }
-        }
-      }
+      // if (connected && !forceOnline) {
+      //   final isValidCache = await _offlineStorage.isCacheValid(
+      //     maxAgeMinutes: 15,
+      //   );
+      //   if (isValidCache) {
+      //     print('快取資料有效，使用快取資料');
+      //     final cachedData = await _offlineStorage.getLastTimeData();
+      //     if (cachedData != null) {
+      //       return cachedData;
+      //     }
+      //   }
+      // }
 
       // STEP 02.04: 發送HTTP請求
       if (!connected) {
@@ -78,15 +78,42 @@ class ApiService {
 
       print('正在呼叫時間API: ${constants.Constants.TIME_API_FULL_URL}');
 
-      final response = await _httpClient
-          .get(
-            Uri.parse(constants.Constants.TIME_API_FULL_URL),
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-            },
-          )
-          .timeout(Duration(seconds: constants.Constants.API_TIMEOUT_SECONDS));
+      // STEP 02.04.01: 嘗試主要API
+      http.Response? response;
+      try {
+        response = await _httpClient
+            .get(
+              Uri.parse(constants.Constants.TIME_API_FULL_URL),
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+              },
+            )
+            .timeout(
+              Duration(seconds: constants.Constants.API_TIMEOUT_SECONDS),
+            );
+      } catch (e) {
+        print('主要API呼叫失敗: $e，嘗試備用API');
+
+        // STEP 02.04.02: 嘗試備用API
+        try {
+          response = await _httpClient
+              .get(
+                Uri.parse(constants.Constants.BACKUP_TIME_API_URL),
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json',
+                },
+              )
+              .timeout(
+                Duration(seconds: constants.Constants.API_TIMEOUT_SECONDS),
+              );
+          print('備用API呼叫成功');
+        } catch (backupError) {
+          print('備用API也失敗: $backupError');
+          throw e; // 拋出原始錯誤
+        }
+      }
 
       print('API回應狀態碼: ${response.statusCode}');
 
@@ -94,6 +121,7 @@ class ApiService {
       if (response.statusCode == 200) {
         // STEP 02.06: 解析JSON回應
         final Map<String, dynamic> jsonData = json.decode(response.body);
+        print('API回應: $jsonData');
         final timeData = time_data_model.TimeDataModel.fromApiResponse(
           jsonData,
         );
@@ -113,19 +141,21 @@ class ApiService {
         });
 
         return timeData;
-      } else {
-        // STEP 02.09: API失敗時嘗試載入快取
-        print('API呼叫失敗，嘗試載入快取資料');
-        final cachedData = await _loadCachedTimeData();
-        if (cachedData != null) {
-          print('使用快取資料作為備案');
-          return cachedData;
-        }
-
-        throw Exception(
-          '${constants.Constants.ERROR_API} (狀態碼: ${response.statusCode})',
-        );
       }
+      return time_data_model.TimeDataModel.createFromLocalTime();
+      //else {
+      // STEP 02.09: API失敗時嘗試載入快取
+      // print('API呼叫失敗，嘗試載入快取資料');
+      // final cachedData = await _loadCachedTimeData();
+      // if (cachedData != null) {
+      //   print('使用快取資料作為備案');
+      //   return cachedData;
+      // }
+
+      // throw Exception(
+      //   '${constants.Constants.ERROR_API} (狀態碼: ${response.statusCode})',
+      // );
+      //}
     } on SocketException catch (e) {
       print('網路連線錯誤: $e，嘗試載入快取資料');
       final cachedData = await _loadCachedTimeData();
@@ -153,7 +183,23 @@ class ApiService {
           return cachedData;
         }
       }
-      throw Exception('${constants.Constants.ERROR_UNKNOWN}: $e');
+
+      // STEP 02.10: 如果所有API都失敗，使用本地時間作為最後備案
+      print('所有API都失敗，使用本地時間作為備案');
+      final localTimeData = time_data_model.TimeDataModel.createFromLocalTime();
+
+      // 儲存本地時間到快取
+      await _offlineStorage.saveLastTimeData(localTimeData);
+
+      // 記錄使用本地時間的事件
+      await _offlineStorage.saveApiCallHistory({
+        'type': 'useLocalTime',
+        'success': true,
+        'source': 'local',
+        'error': e.toString(),
+      });
+
+      return localTimeData;
     }
   }
 

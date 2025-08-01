@@ -133,7 +133,7 @@ class HelloWorldApp extends cupertino.StatelessWidget {
                   textScaler: cupertino.TextScaler.linear(
                     cupertino.MediaQuery.of(
                       context,
-                    ).textScaleFactor.clamp(0.8, 1.3),
+                    ).textScaler.scale(1.0).clamp(0.8, 1.3),
                   ),
                 ),
                 // 將原始的子Widget傳遞給MediaQuery

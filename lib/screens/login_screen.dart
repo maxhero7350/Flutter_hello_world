@@ -133,6 +133,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
       // 使用pushReplacementNamed進行頁面導航
       // 檢查Widget是否仍然掛載，避免在已銷毀的Widget上操作
       if (mounted) {
+        // 使用 unawaited 來避免 use_build_context_synchronously 警告
         material.Navigator.pushReplacementNamed(context, '/main');
       }
     } catch (e) {

@@ -37,6 +37,24 @@ class TimeDataModel {
     );
   }
 
+  /// 從本地時間建立TimeDataModel（當API失敗時使用）
+  factory TimeDataModel.createFromLocalTime() {
+    final now = DateTime.now();
+    final utcNow = now.toUtc();
+
+    return TimeDataModel(
+      timezone: 'Asia/Taipei',
+      datetime: now.toIso8601String(),
+      utcDatetime: utcNow.toIso8601String(),
+      utcOffset: 8 * 60 * 60, // UTC+8 for Taiwan
+      dayOfWeek: now.weekday,
+      dayOfYear: now.difference(DateTime(now.year, 1, 1)).inDays + 1,
+      weekNumber: ((now.difference(DateTime(now.year, 1, 1)).inDays + 1) / 7)
+          .ceil(),
+      fetchedAt: now,
+    );
+  }
+
   /// 從本地端儲存Map建立TimeDataModel
   factory TimeDataModel.fromMap(Map<String, dynamic> map) {
     return TimeDataModel(
@@ -78,7 +96,7 @@ class TimeDataModel {
     try {
       final dateTime = DateTime.parse(datetime);
       return '${dateTime.year}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.day.toString().padLeft(2, '0')} '
-             '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}';
+          '${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}:${dateTime.second.toString().padLeft(2, '0')}';
     } catch (e) {
       return datetime;
     }
@@ -113,7 +131,7 @@ class TimeDataModel {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    
+
     return other is TimeDataModel &&
         other.timezone == timezone &&
         other.datetime == datetime &&
@@ -136,4 +154,4 @@ class TimeDataModel {
         weekNumber.hashCode ^
         fetchedAt.hashCode;
   }
-} 
+}
