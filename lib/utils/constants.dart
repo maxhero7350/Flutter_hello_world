@@ -32,7 +32,7 @@ class Constants {
       'https://timeapi.io/api/time/current/zone?timeZone=Asia/Taipei';
 
   // API請求逾時時間（秒）
-  static const int API_TIMEOUT_SECONDS = 10;
+  static const int API_TIMEOUT_SECONDS = 30;
 
   // === UI相關常數 ===
   // 間距

@@ -984,52 +984,111 @@ class _ScreenCState extends cupertino.State<ScreenC> {
 
   @override
   cupertino.Widget build(cupertino.BuildContext context) {
-    return cupertino.SafeArea(
-      child: cupertino.ListView(
-        padding: const cupertino.EdgeInsets.all(
-          constants.Constants.SPACING_LARGE,
+    return cupertino.Stack(
+      children: [
+        // STEP 16: 主要內容
+        cupertino.SafeArea(
+          child: cupertino.ListView(
+            padding: const cupertino.EdgeInsets.all(
+              constants.Constants.SPACING_LARGE,
+            ),
+            children: [
+              // STEP 16.01: 頁面標題
+              const cupertino.Text(
+                'API呼叫功能',
+                style: cupertino.TextStyle(
+                  fontSize: constants.Constants.FONT_SIZE_EXTRA_LARGE,
+                  fontWeight: cupertino.FontWeight.bold,
+                  color: cupertino.CupertinoColors.label,
+                ),
+              ),
+              const cupertino.SizedBox(
+                height: constants.Constants.SPACING_SMALL,
+              ),
+              const cupertino.Text(
+                '呼叫時間API並顯示即時時間資訊',
+                style: cupertino.TextStyle(
+                  fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                  color: cupertino.CupertinoColors.secondaryLabel,
+                  height: 1.5,
+                ),
+              ),
+              const cupertino.SizedBox(
+                height: constants.Constants.SPACING_EXTRA_LARGE,
+              ),
+
+              // STEP 16.02: 網路狀態卡片
+              _buildNetworkStatusCard(),
+              const cupertino.SizedBox(
+                height: constants.Constants.SPACING_LARGE,
+              ),
+
+              // STEP 16.03: 統計卡片
+              _buildStatsCard(),
+              const cupertino.SizedBox(
+                height: constants.Constants.SPACING_LARGE,
+              ),
+
+              // STEP 16.04: 操作按鈕
+              _buildActionButtons(),
+              const cupertino.SizedBox(
+                height: constants.Constants.SPACING_EXTRA_LARGE,
+              ),
+
+              // STEP 16.05: 時間資料顯示
+              _buildTimeDataCard(),
+            ],
+          ),
         ),
-        children: [
-          // STEP 16.01: 頁面標題
-          const cupertino.Text(
-            'API呼叫功能',
-            style: cupertino.TextStyle(
-              fontSize: constants.Constants.FONT_SIZE_EXTRA_LARGE,
-              fontWeight: cupertino.FontWeight.bold,
-              color: cupertino.CupertinoColors.label,
+
+        // STEP 17: 載入中遮罩層
+        if (_isLoading)
+          cupertino.Container(
+            color: cupertino.CupertinoColors.black.withValues(alpha: 0.5),
+            child: cupertino.Center(
+              child: cupertino.Container(
+                padding: const cupertino.EdgeInsets.all(
+                  constants.Constants.SPACING_LARGE,
+                ),
+                decoration: cupertino.BoxDecoration(
+                  color: cupertino.CupertinoColors.systemBackground,
+                  borderRadius: cupertino.BorderRadius.circular(
+                    constants.Constants.BORDER_RADIUS_LARGE,
+                  ),
+                  boxShadow: [
+                    cupertino.BoxShadow(
+                      color: cupertino.CupertinoColors.black.withValues(
+                        alpha: 0.2,
+                      ),
+                      blurRadius: 10,
+                      offset: const cupertino.Offset(0, 5),
+                    ),
+                  ],
+                ),
+                child: cupertino.Column(
+                  mainAxisSize: cupertino.MainAxisSize.min,
+                  children: [
+                    const cupertino.CupertinoActivityIndicator(
+                      radius: 20,
+                      color: cupertino.CupertinoColors.activeBlue,
+                    ),
+                    const cupertino.SizedBox(
+                      height: constants.Constants.SPACING_MEDIUM,
+                    ),
+                    const cupertino.Text(
+                      '呼叫API中...',
+                      style: cupertino.TextStyle(
+                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                        fontWeight: cupertino.FontWeight.w600,
+                        color: cupertino.CupertinoColors.label,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
-          const cupertino.Text(
-            '呼叫時間API並顯示即時時間資訊',
-            style: cupertino.TextStyle(
-              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
-              color: cupertino.CupertinoColors.secondaryLabel,
-              height: 1.5,
-            ),
-          ),
-          const cupertino.SizedBox(
-            height: constants.Constants.SPACING_EXTRA_LARGE,
-          ),
-
-          // STEP 16.02: 網路狀態卡片
-          _buildNetworkStatusCard(),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
-
-          // STEP 16.03: 統計卡片
-          _buildStatsCard(),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
-
-          // STEP 16.04: 操作按鈕
-          _buildActionButtons(),
-          const cupertino.SizedBox(
-            height: constants.Constants.SPACING_EXTRA_LARGE,
-          ),
-
-          // STEP 16.05: 時間資料顯示
-          _buildTimeDataCard(),
-        ],
-      ),
+      ],
     );
   }
 }
