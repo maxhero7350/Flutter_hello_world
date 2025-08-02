@@ -4,6 +4,7 @@ import 'package:flutter/material.dart' as material;
 
 // ===== THIRD PARTY =====
 import 'package:provider/provider.dart' as provider;
+import 'dart:async' show unawaited;
 
 // ===== CUSTOM WIDGETS =====
 import '../widgets/responsive_layout.dart' as responsive_widgets;
@@ -134,7 +135,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
       // 檢查Widget是否仍然掛載，避免在已銷毀的Widget上操作
       if (mounted) {
         // 使用 unawaited 來避免 use_build_context_synchronously 警告
-        material.Navigator.pushReplacementNamed(context, '/main');
+        unawaited(material.Navigator.pushReplacementNamed(context, '/main'));
       }
     } catch (e) {
       // STEP 02.08: 處理錯誤
@@ -151,7 +152,6 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
       // 隱藏載入指示器，讓用戶可以重新嘗試
       appStateProvider.setLoading(false);
     }
-    return null;
   }
 
   /// STEP 03: 處理快速登入

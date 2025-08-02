@@ -83,6 +83,15 @@ class HelloWorldApp extends cupertino.StatelessWidget {
         provider.ChangeNotifierProvider(
           create: (_) => providers.ThemeProvider(),
         ),
+
+        // STEP 01.05: 載入狀態Provider
+        // 負責管理全域載入狀態，如：
+        // - 載入狀態 (isLoading)
+        // - 載入訊息 (loadingMessage)
+        // - 顯示/隱藏載入遮罩
+        provider.ChangeNotifierProvider(
+          create: (_) => providers.LoadingProvider(),
+        ),
       ],
 
       // STEP 02: 使用Consumer監聽ThemeProvider變化

@@ -15,12 +15,19 @@ import '../models/time_data_model.dart' as time_data_model;
 // ===== CUSTOM SERVICES =====
 import 'offline_storage_service.dart' as offline_storage_service;
 
+// ===== CUSTOM PROVIDERS =====
+import '../providers/providers.dart' as providers;
+
 /// API服務類別
 /// 提供網路API呼叫功能，包含時間API和網路狀態檢查
 class ApiService {
-  static final ApiService _instance = ApiService._internal();
-  factory ApiService() => _instance;
-  ApiService._internal();
+  final providers.LoadingProvider? _loadingProvider;
+
+  ApiService([this._loadingProvider]);
+
+  // 保留單例模式以向後相容
+  static ApiService? _instance;
+  static ApiService get instance => _instance ??= ApiService();
 
   final http.Client _httpClient = http.Client();
   final connectivity.Connectivity _connectivity = connectivity.Connectivity();
@@ -42,8 +49,11 @@ class ApiService {
   Future<time_data_model.TimeDataModel> fetchCurrentTime({
     bool forceOnline = false,
   }) async {
+    // STEP 02.01: 顯示載入狀態
+    _loadingProvider?.showLoading("呼叫時間API中...");
+
     try {
-      // STEP 02.01: 檢查網路連線
+      // STEP 02.02: 檢查網路連線
       final connected = await isConnected();
 
       // STEP 02.02: 如果離線且沒有強制線上模式，嘗試載入快取資料
@@ -200,6 +210,9 @@ class ApiService {
       });
 
       return localTimeData;
+    } finally {
+      // STEP 02.11: 隱藏載入狀態
+      _loadingProvider?.hideLoading();
     }
   }
 
