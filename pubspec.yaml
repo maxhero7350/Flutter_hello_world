@@ -49,6 +49,9 @@ dependencies:
   
   # 本地存儲
   shared_preferences: ^2.2.2
+  
+  # 日誌框架
+  logger: ^2.0.2+1
 
 dev_dependencies:
   flutter_test:
