@@ -6,6 +6,10 @@ import 'package:flutter/cupertino.dart' as cupertino;
 
 // ===== THIRD PARTY =====
 import 'package:connectivity_plus/connectivity_plus.dart' as connectivity;
+import 'package:provider/provider.dart' as provider;
+
+// ===== CUSTOM PROVIDERS =====
+import '../providers/providers.dart' as providers;
 
 // ===== CUSTOM UTILS =====
 import '../utils/constants.dart' as constants;
@@ -27,12 +31,11 @@ class ScreenC extends cupertino.StatefulWidget {
 }
 
 class _ScreenCState extends cupertino.State<ScreenC> {
-  final api_service.ApiService _apiService = api_service.ApiService();
+  late final api_service.ApiService _apiService;
   final offline_storage_service.OfflineStorageService _offlineStorage =
       offline_storage_service.OfflineStorageService();
 
   time_data_model.TimeDataModel? _currentTimeData;
-  bool _isLoading = false;
   String? _errorMessage;
   String _networkType = '檢查中...';
   bool _isConnected = false;
@@ -49,37 +52,53 @@ class _ScreenCState extends cupertino.State<ScreenC> {
   @override
   void initState() {
     super.initState();
-    // STEP 01: 初始化離線功能
+    // STEP 01: 初始化API服務
+    final loadingProvider = provider.Provider.of<providers.LoadingProvider>(
+      context,
+      listen: false,
+    );
+    _apiService = api_service.ApiService(loadingProvider);
+
+    // STEP 02: 初始化離線功能
     _initializeOfflineFeatures();
 
-    // STEP 01.01: 監聽網路狀態變化
+    // STEP 03: 監聽網路狀態變化
     _connectivitySubscription = _apiService.connectivityStream.listen(
       _onConnectivityChanged,
     );
   }
 
-  /// STEP 01A: 初始化離線功能
+  /// 初始化離線功能
   Future<void> _initializeOfflineFeatures() async {
+    // STEP 01: 初始化離線儲存服務
     await _offlineStorage.initialize();
+    // STEP 02: 載入離線設定
     await _loadOfflineSettings();
+    // STEP 03: 載入快取統計
     await _loadCacheStats();
+    // STEP 04: 檢查網路狀態
     await _checkNetworkStatus();
+    // STEP 05: 載入快取資料（如果可用）
     await _loadCachedDataIfAvailable();
   }
 
   @override
   void dispose() {
-    // STEP 02: 清理資源
+    // STEP 01: 取消網路狀態監聽
     _connectivitySubscription?.cancel();
+    // STEP 02: 取消自動刷新計時器
     _autoRefreshTimer?.cancel();
     super.dispose();
   }
 
-  /// STEP 03: 檢查網路狀態
+  /// 檢查網路狀態
   Future<void> _checkNetworkStatus() async {
+    // STEP 01: 檢查網路連線狀態
     final connected = await _apiService.isConnected();
+    // STEP 02: 取得網路類型
     final networkType = await _apiService.getNetworkType();
 
+    // STEP 03: 更新UI狀態
     if (mounted) {
       setState(() {
         _isConnected = connected;
@@ -88,20 +107,23 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     }
   }
 
-  /// STEP 04: 處理網路狀態變化
+  /// 處理網路狀態變化
   void _onConnectivityChanged(connectivity.ConnectivityResult result) {
+    // STEP 01: 重新檢查網路狀態
     _checkNetworkStatus();
 
-    // 如果網路恢復連線且開啟自動同步，進行資料同步
+    // STEP 02: 如果網路恢復連線且開啟自動同步，進行資料同步
     if (result != connectivity.ConnectivityResult.none &&
         _offlineSettings['autoSync'] == true) {
       _syncOfflineData();
     }
   }
 
-  /// STEP 04A: 載入離線設定
+  /// 載入離線設定
   Future<void> _loadOfflineSettings() async {
+    // STEP 01: 從API服務取得離線設定
     final settings = await _apiService.getOfflineSettings();
+    // STEP 02: 更新UI狀態
     if (mounted) {
       setState(() {
         _offlineSettings = settings;
@@ -109,9 +131,11 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     }
   }
 
-  /// STEP 04B: 載入快取統計
+  /// 載入快取統計
   Future<void> _loadCacheStats() async {
+    // STEP 01: 從API服務取得快取統計
     final stats = await _apiService.getCacheStats();
+    // STEP 02: 更新UI狀態
     if (mounted) {
       setState(() {
         _cacheStats = stats;
@@ -119,10 +143,12 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     }
   }
 
-  /// STEP 04C: 載入快取資料（如果可用）
+  /// 載入快取資料（如果可用）
   Future<void> _loadCachedDataIfAvailable() async {
     try {
+      // STEP 01: 從離線儲存取得最後的時間資料
       final cachedData = await _offlineStorage.getLastTimeData();
+      // STEP 02: 如果有快取資料且元件仍然掛載，更新狀態
       if (cachedData != null && mounted) {
         setState(() {
           _currentTimeData = cachedData;
@@ -130,34 +156,37 @@ class _ScreenCState extends cupertino.State<ScreenC> {
         });
       }
     } catch (e) {
+      // STEP 03: 錯誤處理
       print('載入快取資料錯誤: $e');
     }
   }
 
-  /// STEP 05: 呼叫時間API
+  /// 呼叫時間API
   Future<void> _fetchCurrentTime({bool forceOnline = false}) async {
+    // STEP 01: 清除錯誤訊息
     setState(() {
-      _isLoading = true;
       _errorMessage = null;
     });
 
     try {
+      // STEP 02: 呼叫API服務取得時間資料
       final timeData = await _apiService.fetchCurrentTime(
         forceOnline: forceOnline,
       );
 
+      // STEP 03: 更新UI狀態
       if (mounted) {
         setState(() {
           _currentTimeData = timeData;
-          _isLoading = false;
           _apiCallCount++;
           _lastUpdateTime = DateTime.now();
           _isOfflineMode = !_isConnected && !forceOnline;
         });
 
-        // 更新快取統計
+        // STEP 04: 更新快取統計
         await _loadCacheStats();
 
+        // STEP 05: 顯示成功訊息
         if (_isOfflineMode) {
           _showSuccessMessage(constants.Constants.SUCCESS_OFFLINE_DATA_LOADED);
         } else {
@@ -165,13 +194,13 @@ class _ScreenCState extends cupertino.State<ScreenC> {
         }
       }
     } catch (e) {
+      // STEP 06: 錯誤處理
       if (mounted) {
         setState(() {
           _errorMessage = e.toString();
-          _isLoading = false;
         });
 
-        // 如果是離線錯誤且有快取資料，不顯示錯誤對話框
+        // STEP 07: 如果是離線錯誤且有快取資料，不顯示錯誤對話框
         if (e.toString().contains(constants.Constants.ERROR_NETWORK) &&
             _currentTimeData != null) {
           print('離線模式：使用快取資料');
@@ -182,58 +211,53 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     }
   }
 
-  /// STEP 05A: 同步離線資料
+  /// 同步離線資料
   Future<void> _syncOfflineData() async {
     try {
+      // STEP 01: 同步離線資料
       await _apiService.syncOfflineData();
+      // STEP 02: 重新載入快取統計
       await _loadCacheStats();
 
+      // STEP 03: 顯示成功訊息
       if (mounted) {
         _showSuccessMessage(constants.Constants.SUCCESS_CACHE_SYNC);
       }
     } catch (e) {
+      // STEP 04: 錯誤處理
       print('同步離線資料錯誤: $e');
     }
   }
 
-  /// STEP 06: 測試API連線
+  /// 測試API連線
   Future<void> _testApiConnection() async {
-    setState(() {
-      _isLoading = true;
-    });
-
     try {
+      // STEP 01: 執行API連線測試
       final testResult = await _apiService.testApiConnection();
 
+      // STEP 02: 顯示測試結果
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-
         _showTestResultDialog(testResult);
       }
     } catch (e) {
+      // STEP 03: 錯誤處理
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-
         _showErrorDialog('連線測試失敗', e.toString());
       }
     }
   }
 
-  /// STEP 07: 啟用自動刷新
+  /// 啟用自動刷新
   void _toggleAutoRefresh() {
     if (_autoRefreshTimer != null) {
-      // 停止自動刷新
+      // STEP 01: 停止自動刷新
       _autoRefreshTimer?.cancel();
       _autoRefreshTimer = null;
       setState(() {});
     } else {
-      // 啟用自動刷新（每30秒）
+      // STEP 02: 啟用自動刷新（每30秒）
       _autoRefreshTimer = Timer.periodic(const Duration(seconds: 30), (timer) {
-        if (_isConnected && !_isLoading) {
+        if (_isConnected) {
           _fetchCurrentTime();
         }
       });
@@ -241,8 +265,9 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     }
   }
 
-  /// STEP 08: 顯示成功訊息
+  /// 顯示成功訊息
   void _showSuccessMessage([String? message]) {
+    // STEP 01: 顯示成功對話框
     cupertino.showCupertinoDialog(
       context: context,
       builder: (cupertino.BuildContext context) {
@@ -264,8 +289,9 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     );
   }
 
-  /// STEP 09: 顯示錯誤對話框
+  /// 顯示錯誤對話框
   void _showErrorDialog(String title, String message) {
+    // STEP 01: 顯示錯誤對話框
     cupertino.showCupertinoDialog(
       context: context,
       builder: (cupertino.BuildContext context) {
@@ -285,8 +311,9 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     );
   }
 
-  /// STEP 10: 顯示測試結果對話框
+  /// 顯示測試結果對話框
   void _showTestResultDialog(Map<String, dynamic> result) {
+    // STEP 01: 顯示測試結果對話框
     cupertino.showCupertinoDialog(
       context: context,
       builder: (cupertino.BuildContext context) {
@@ -319,11 +346,13 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     );
   }
 
-  /// STEP 11: 建立網路狀態卡片
+  /// 建立網路狀態卡片
   cupertino.Widget _buildNetworkStatusCard() {
+    // STEP 01: 取得快取狀態資訊
     final hasCache = _cacheStats['hasTimeDataCache'] ?? false;
     final cacheAge = _cacheStats['cacheAge'];
 
+    // STEP 02: 建立網路狀態容器
     return cupertino.Container(
       padding: const cupertino.EdgeInsets.all(
         constants.Constants.SPACING_LARGE,
@@ -517,12 +546,15 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     );
   }
 
-  /// STEP 11A: 清除快取
+  /// 清除快取
   Future<void> _clearCache() async {
     try {
+      // STEP 01: 清除所有快取
       await _apiService.clearAllCache();
+      // STEP 02: 重新載入快取統計
       await _loadCacheStats();
 
+      // STEP 03: 更新UI狀態
       if (mounted) {
         setState(() {
           _currentTimeData = null;
@@ -532,12 +564,14 @@ class _ScreenCState extends cupertino.State<ScreenC> {
         _showSuccessMessage('快取已清除');
       }
     } catch (e) {
+      // STEP 04: 錯誤處理
       _showErrorDialog('清除快取失敗', e.toString());
     }
   }
 
-  /// STEP 12: 建立操作按鈕區域
+  /// 建立操作按鈕區域
   cupertino.Widget _buildActionButtons() {
+    // STEP 01: 建立按鈕容器
     return cupertino.Column(
       children: [
         // 主要呼叫按鈕
@@ -550,23 +584,13 @@ class _ScreenCState extends cupertino.State<ScreenC> {
             borderRadius: cupertino.BorderRadius.circular(
               constants.Constants.BORDER_RADIUS_LARGE,
             ),
-            onPressed: (_isConnected && !_isLoading) ? _fetchCurrentTime : null,
+            onPressed: _isConnected ? _fetchCurrentTime : null,
             child: cupertino.Row(
               mainAxisAlignment: cupertino.MainAxisAlignment.center,
               children: [
-                if (_isLoading) ...[
-                  const cupertino.CupertinoActivityIndicator(
-                    radius: 10,
-                    color: cupertino.CupertinoColors.white,
-                  ),
-                  const cupertino.SizedBox(
-                    width: constants.Constants.SPACING_SMALL,
-                  ),
-                ],
+                // 載入狀態由 Provider 控制，這裡不需要顯示載入指示器
                 cupertino.Icon(
-                  _isLoading
-                      ? cupertino.CupertinoIcons.clock
-                      : cupertino.CupertinoIcons.refresh_bold,
+                  cupertino.CupertinoIcons.refresh_bold,
                   color: cupertino.CupertinoColors.white,
                   size: constants.Constants.ICON_SIZE_MEDIUM,
                 ),
@@ -574,7 +598,7 @@ class _ScreenCState extends cupertino.State<ScreenC> {
                   width: constants.Constants.SPACING_SMALL,
                 ),
                 cupertino.Text(
-                  _isLoading ? '呼叫中...' : '獲取當前時間',
+                  '獲取當前時間',
                   style: const cupertino.TextStyle(
                     color: cupertino.CupertinoColors.white,
                     fontSize: constants.Constants.FONT_SIZE_LARGE,
@@ -666,9 +690,11 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     );
   }
 
-  /// STEP 13: 建立時間資料顯示卡片
+  /// 建立時間資料顯示卡片
   cupertino.Widget _buildTimeDataCard() {
+    // STEP 01: 檢查是否有時間資料或錯誤訊息
     if (_currentTimeData == null && _errorMessage == null) {
+      // STEP 02: 顯示空狀態容器
       return cupertino.Container(
         padding: const cupertino.EdgeInsets.all(
           constants.Constants.SPACING_EXTRA_LARGE,
@@ -712,7 +738,9 @@ class _ScreenCState extends cupertino.State<ScreenC> {
       );
     }
 
+    // STEP 03: 檢查是否有錯誤訊息
     if (_errorMessage != null) {
+      // STEP 04: 顯示錯誤狀態容器
       return cupertino.Container(
         padding: const cupertino.EdgeInsets.all(
           constants.Constants.SPACING_LARGE,
@@ -759,6 +787,7 @@ class _ScreenCState extends cupertino.State<ScreenC> {
       );
     }
 
+    // STEP 05: 顯示時間資料容器
     return cupertino.Container(
       padding: const cupertino.EdgeInsets.all(
         constants.Constants.SPACING_LARGE,
@@ -871,8 +900,9 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     );
   }
 
-  /// STEP 14: 建立資訊行
+  /// 建立資訊行
   cupertino.Widget _buildInfoRow(String label, String value) {
+    // STEP 01: 建立資訊行容器
     return cupertino.Row(
       mainAxisAlignment: cupertino.MainAxisAlignment.spaceBetween,
       children: [
@@ -895,8 +925,9 @@ class _ScreenCState extends cupertino.State<ScreenC> {
     );
   }
 
-  /// STEP 15: 建立統計資訊卡片
+  /// 建立統計資訊卡片
   cupertino.Widget _buildStatsCard() {
+    // STEP 01: 建立統計容器
     return cupertino.Container(
       padding: const cupertino.EdgeInsets.all(
         constants.Constants.SPACING_LARGE,
@@ -984,16 +1015,17 @@ class _ScreenCState extends cupertino.State<ScreenC> {
 
   @override
   cupertino.Widget build(cupertino.BuildContext context) {
+    // STEP 01: 建立主要堆疊容器
     return cupertino.Stack(
       children: [
-        // STEP 16: 主要內容
+        // STEP 02: 主要內容區域
         cupertino.SafeArea(
           child: cupertino.ListView(
             padding: const cupertino.EdgeInsets.all(
               constants.Constants.SPACING_LARGE,
             ),
             children: [
-              // STEP 16.01: 頁面標題
+              // STEP 03: 頁面標題
               const cupertino.Text(
                 'API呼叫功能',
                 style: cupertino.TextStyle(
@@ -1017,77 +1049,29 @@ class _ScreenCState extends cupertino.State<ScreenC> {
                 height: constants.Constants.SPACING_EXTRA_LARGE,
               ),
 
-              // STEP 16.02: 網路狀態卡片
+              // STEP 04: 網路狀態卡片
               _buildNetworkStatusCard(),
               const cupertino.SizedBox(
                 height: constants.Constants.SPACING_LARGE,
               ),
 
-              // STEP 16.03: 統計卡片
+              // STEP 05: 統計卡片
               _buildStatsCard(),
               const cupertino.SizedBox(
                 height: constants.Constants.SPACING_LARGE,
               ),
 
-              // STEP 16.04: 操作按鈕
+              // STEP 06: 操作按鈕
               _buildActionButtons(),
               const cupertino.SizedBox(
                 height: constants.Constants.SPACING_EXTRA_LARGE,
               ),
 
-              // STEP 16.05: 時間資料顯示
+              // STEP 07: 時間資料顯示
               _buildTimeDataCard(),
             ],
           ),
         ),
-
-        // STEP 17: 載入中遮罩層
-        if (_isLoading)
-          cupertino.Container(
-            color: cupertino.CupertinoColors.black.withValues(alpha: 0.5),
-            child: cupertino.Center(
-              child: cupertino.Container(
-                padding: const cupertino.EdgeInsets.all(
-                  constants.Constants.SPACING_LARGE,
-                ),
-                decoration: cupertino.BoxDecoration(
-                  color: cupertino.CupertinoColors.systemBackground,
-                  borderRadius: cupertino.BorderRadius.circular(
-                    constants.Constants.BORDER_RADIUS_LARGE,
-                  ),
-                  boxShadow: [
-                    cupertino.BoxShadow(
-                      color: cupertino.CupertinoColors.black.withValues(
-                        alpha: 0.2,
-                      ),
-                      blurRadius: 10,
-                      offset: const cupertino.Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: cupertino.Column(
-                  mainAxisSize: cupertino.MainAxisSize.min,
-                  children: [
-                    const cupertino.CupertinoActivityIndicator(
-                      radius: 20,
-                      color: cupertino.CupertinoColors.activeBlue,
-                    ),
-                    const cupertino.SizedBox(
-                      height: constants.Constants.SPACING_MEDIUM,
-                    ),
-                    const cupertino.Text(
-                      '呼叫API中...',
-                      style: cupertino.TextStyle(
-                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
-                        fontWeight: cupertino.FontWeight.w600,
-                        color: cupertino.CupertinoColors.label,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
       ],
     );
   }

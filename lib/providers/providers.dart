@@ -8,3 +8,4 @@ export 'app_state_provider.dart';
 export 'user_provider.dart';
 export 'navigation_provider.dart';
 export 'theme_provider.dart';
+export 'loading_provider.dart';

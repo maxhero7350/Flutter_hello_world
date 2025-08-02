@@ -15,6 +15,7 @@ import '../utils/screen_util.dart' as screen_util;
 import '../widgets/custom_sidebar.dart' as custom_sidebar;
 import '../widgets/custom_bottom_nav_bar.dart' as custom_bottom_nav;
 import '../widgets/responsive_layout.dart' as responsive_widgets;
+import '../widgets/loading_spinner.dart' as loading_widgets;
 
 // ===== CUSTOM SCREENS =====
 import 'screen_a.dart' as screen_a;
@@ -155,7 +156,7 @@ class MainScreen extends cupertino.StatelessWidget {
         navigationProvider.toggleSidebar();
       },
       child: cupertino.Container(
-        color: cupertino.CupertinoColors.black.withOpacity(0.3),
+        color: cupertino.CupertinoColors.black.withValues(alpha: 0.3),
         child: cupertino.Row(
           children: [
             // STEP 03.05: 響應式側邊欄區域
@@ -314,15 +315,18 @@ class MainScreen extends cupertino.StatelessWidget {
     // STEP 07: 初始化響應式設計
     screen_util.ScreenUtil.instance.init(context);
 
-    // STEP 07.01: 使用Consumer監聽NavigationProvider
-    return provider.Consumer<providers.NavigationProvider>(
-      builder: (context, navigationProvider, child) {
+    // STEP 07.01: 使用Consumer監聽NavigationProvider和LoadingProvider
+    return provider.Consumer2<
+      providers.NavigationProvider,
+      providers.LoadingProvider
+    >(
+      builder: (context, navigationProvider, loadingProvider, child) {
         // STEP 07.02: 從Provider取得當前狀態
         final selectedIndex = navigationProvider.currentIndex;
         final isSidebarOpen = navigationProvider.isSidebarOpen;
 
-        // STEP 07.03: 使用響應式佈局包裝器
-        return cupertino.OrientationBuilder(
+        // STEP 07.03: 建立主要內容
+        final mainContent = cupertino.OrientationBuilder(
           builder: (context, orientation) {
             return cupertino.CupertinoPageScaffold(
               // STEP 07.04: 響應式導航列
@@ -351,6 +355,20 @@ class MainScreen extends cupertino.StatelessWidget {
               ),
             );
           },
+        );
+
+        // STEP 07.09: 建立堆疊容器包含主要內容和載入遮罩
+        return cupertino.Stack(
+          children: [
+            // STEP 07.10: 主要內容
+            mainContent,
+
+            // STEP 07.11: 全域載入遮罩
+            if (loadingProvider.isLoading)
+              loading_widgets.LoadingSpinner(
+                message: loadingProvider.loadingMessage,
+              ),
+          ],
         );
       },
     );
