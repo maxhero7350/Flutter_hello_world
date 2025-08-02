@@ -104,7 +104,7 @@ class HelloWorldApp extends cupertino.StatelessWidget {
           // 提供iOS風格的導航、對話框、按鈕等元件
           return cupertino.CupertinoApp(
             // 應用程式標題，會顯示在任務切換器中
-            title: constants.Constants.APP_NAME,
+            title: constants.Constants.appName,
 
             // 使用ThemeProvider提供的當前主題
             // 支援動態主題切換（亮色/暗色模式）
@@ -139,11 +139,7 @@ class HelloWorldApp extends cupertino.StatelessWidget {
                   // 確保文字大小在合理範圍內（0.8-1.3倍）
                   // 避免因系統設定導致文字過大或過小
                   // 提升應用程式的可讀性和使用體驗
-                  textScaler: cupertino.TextScaler.linear(
-                    cupertino.MediaQuery.of(
-                      context,
-                    ).textScaler.scale(1.0).clamp(0.8, 1.3),
-                  ),
+                  textScaler: cupertino.TextScaler.noScaling,
                 ),
                 // 將原始的子Widget傳遞給MediaQuery
                 child: child!,

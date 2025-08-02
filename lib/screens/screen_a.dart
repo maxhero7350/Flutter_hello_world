@@ -89,19 +89,19 @@ class _ScreenAState extends cupertino.State<ScreenA> {
   }) {
     return cupertino.Container(
       margin: const cupertino.EdgeInsets.only(
-        bottom: constants.Constants.SPACING_MEDIUM,
+        bottom: constants.Constants.spacingMedium,
       ),
       child: cupertino.CupertinoButton(
         padding: cupertino.EdgeInsets.zero,
         onPressed: onTap,
         child: cupertino.Container(
           padding: const cupertino.EdgeInsets.all(
-            constants.Constants.SPACING_LARGE,
+            constants.Constants.spacingLarge,
           ),
           decoration: cupertino.BoxDecoration(
             color: cardColor ?? cupertino.CupertinoColors.systemBackground,
             borderRadius: cupertino.BorderRadius.circular(
-              constants.Constants.BORDER_RADIUS_LARGE,
+              constants.Constants.borderRadiusLarge,
             ),
             border: cupertino.Border.all(
               color: cupertino.CupertinoColors.systemGrey4,
@@ -109,7 +109,9 @@ class _ScreenAState extends cupertino.State<ScreenA> {
             ),
             boxShadow: [
               cupertino.BoxShadow(
-                color: cupertino.CupertinoColors.systemGrey.withOpacity(0.1),
+                color: cupertino.CupertinoColors.systemGrey.withValues(
+                  alpha: 0.1,
+                ),
                 blurRadius: 8,
                 offset: const cupertino.Offset(0, 2),
               ),
@@ -120,22 +122,24 @@ class _ScreenAState extends cupertino.State<ScreenA> {
               // STEP 04.01: 圖標區域
               cupertino.Container(
                 padding: const cupertino.EdgeInsets.all(
-                  constants.Constants.SPACING_MEDIUM,
+                  constants.Constants.spacingMedium,
                 ),
                 decoration: cupertino.BoxDecoration(
-                  color: cupertino.CupertinoColors.activeBlue.withOpacity(0.1),
+                  color: cupertino.CupertinoColors.systemBlue.withValues(
+                    alpha: 0.1,
+                  ),
                   borderRadius: cupertino.BorderRadius.circular(
-                    constants.Constants.BORDER_RADIUS_MEDIUM,
+                    constants.Constants.borderRadiusMedium,
                   ),
                 ),
                 child: cupertino.Icon(
                   icon,
-                  size: constants.Constants.ICON_SIZE_LARGE,
-                  color: cupertino.CupertinoColors.activeBlue,
+                  size: constants.Constants.iconSizeLarge,
+                  color: cupertino.CupertinoColors.systemBlue,
                 ),
               ),
               const cupertino.SizedBox(
-                width: constants.Constants.SPACING_MEDIUM,
+                width: constants.Constants.spacingMedium,
               ),
 
               // STEP 04.02: 文字區域
@@ -146,18 +150,18 @@ class _ScreenAState extends cupertino.State<ScreenA> {
                     cupertino.Text(
                       title,
                       style: const cupertino.TextStyle(
-                        fontSize: constants.Constants.FONT_SIZE_LARGE,
+                        fontSize: constants.Constants.fontSizeLarge,
                         fontWeight: cupertino.FontWeight.bold,
                         color: cupertino.CupertinoColors.label,
                       ),
                     ),
                     const cupertino.SizedBox(
-                      height: constants.Constants.SPACING_SMALL,
+                      height: constants.Constants.spacingSmall,
                     ),
                     cupertino.Text(
                       description,
                       style: const cupertino.TextStyle(
-                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                        fontSize: constants.Constants.fontSizeMedium,
                         color: cupertino.CupertinoColors.secondaryLabel,
                         height: 1.4,
                       ),
@@ -170,7 +174,7 @@ class _ScreenAState extends cupertino.State<ScreenA> {
               const cupertino.Icon(
                 cupertino.CupertinoIcons.chevron_right,
                 color: cupertino.CupertinoColors.systemGrey3,
-                size: constants.Constants.ICON_SIZE_MEDIUM,
+                size: constants.Constants.iconSizeMedium,
               ),
             ],
           ),
@@ -182,16 +186,14 @@ class _ScreenAState extends cupertino.State<ScreenA> {
   /// STEP 05: 建立狀態資訊卡片
   cupertino.Widget _buildStatusCard() {
     return cupertino.Container(
-      padding: const cupertino.EdgeInsets.all(
-        constants.Constants.SPACING_LARGE,
-      ),
+      padding: const cupertino.EdgeInsets.all(constants.Constants.spacingLarge),
       decoration: cupertino.BoxDecoration(
-        color: cupertino.CupertinoColors.systemBlue.withOpacity(0.1),
+        color: cupertino.CupertinoColors.systemBlue.withValues(alpha: 0.1),
         borderRadius: cupertino.BorderRadius.circular(
-          constants.Constants.BORDER_RADIUS_LARGE,
+          constants.Constants.borderRadiusLarge,
         ),
         border: cupertino.Border.all(
-          color: cupertino.CupertinoColors.systemBlue.withOpacity(0.3),
+          color: cupertino.CupertinoColors.systemBlue.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -203,23 +205,23 @@ class _ScreenAState extends cupertino.State<ScreenA> {
               cupertino.Icon(
                 cupertino.CupertinoIcons.info_circle,
                 color: cupertino.CupertinoColors.systemBlue,
-                size: constants.Constants.ICON_SIZE_MEDIUM,
+                size: constants.Constants.iconSizeMedium,
               ),
-              cupertino.SizedBox(width: constants.Constants.SPACING_SMALL),
+              cupertino.SizedBox(width: constants.Constants.spacingSmall),
               cupertino.Text(
                 '導航狀態',
                 style: cupertino.TextStyle(
-                  fontSize: constants.Constants.FONT_SIZE_LARGE,
+                  fontSize: constants.Constants.fontSizeLarge,
                   fontWeight: cupertino.FontWeight.bold,
                   color: cupertino.CupertinoColors.systemBlue,
                 ),
               ),
             ],
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+          const cupertino.SizedBox(height: constants.Constants.spacingMedium),
 
           _buildStatusRow('導航次數', '$_navigationCount 次'),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.spacingSmall),
           _buildStatusRow('最後訪問', _lastVisitedPage),
         ],
       ),
@@ -234,14 +236,14 @@ class _ScreenAState extends cupertino.State<ScreenA> {
         cupertino.Text(
           label,
           style: const cupertino.TextStyle(
-            fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+            fontSize: constants.Constants.fontSizeMedium,
             color: cupertino.CupertinoColors.secondaryLabel,
           ),
         ),
         cupertino.Text(
           value,
           style: const cupertino.TextStyle(
-            fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+            fontSize: constants.Constants.fontSizeMedium,
             fontWeight: cupertino.FontWeight.w600,
             color: cupertino.CupertinoColors.label,
           ),
@@ -255,29 +257,29 @@ class _ScreenAState extends cupertino.State<ScreenA> {
     return cupertino.SafeArea(
       child: cupertino.ListView(
         padding: const cupertino.EdgeInsets.all(
-          constants.Constants.SPACING_LARGE,
+          constants.Constants.spacingLarge,
         ),
         children: [
           // STEP 08.01: 頁面介紹
           const cupertino.Text(
             '歡迎來到A頁面！',
             style: cupertino.TextStyle(
-              fontSize: constants.Constants.FONT_SIZE_EXTRA_LARGE,
+              fontSize: constants.Constants.fontSizeExtraLarge,
               fontWeight: cupertino.FontWeight.bold,
               color: cupertino.CupertinoColors.label,
             ),
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.spacingSmall),
           const cupertino.Text(
             '這裡可以練習Flutter的頁面導航功能，體驗兩層跳轉頁面的導航流程。',
             style: cupertino.TextStyle(
-              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+              fontSize: constants.Constants.fontSizeMedium,
               color: cupertino.CupertinoColors.secondaryLabel,
               height: 1.5,
             ),
           ),
           const cupertino.SizedBox(
-            height: constants.Constants.SPACING_EXTRA_LARGE,
+            height: constants.Constants.spacingExtraLarge,
           ),
 
           // STEP 08.02: 導航功能卡片
@@ -295,18 +297,18 @@ class _ScreenAState extends cupertino.State<ScreenA> {
             onTap: _navigateDirectlyToA2,
           ),
 
-          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+          const cupertino.SizedBox(height: constants.Constants.spacingLarge),
 
           // STEP 08.03: 狀態資訊
           _buildStatusCard(),
 
-          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+          const cupertino.SizedBox(height: constants.Constants.spacingLarge),
 
           // STEP 08.04: 重置按鈕
           cupertino.CupertinoButton(
             color: cupertino.CupertinoColors.systemGrey5,
             borderRadius: cupertino.BorderRadius.circular(
-              constants.Constants.BORDER_RADIUS_MEDIUM,
+              constants.Constants.borderRadiusMedium,
             ),
             onPressed: _resetNavigationState,
             child: const cupertino.Row(
@@ -315,14 +317,14 @@ class _ScreenAState extends cupertino.State<ScreenA> {
                 cupertino.Icon(
                   cupertino.CupertinoIcons.refresh,
                   color: cupertino.CupertinoColors.label,
-                  size: constants.Constants.ICON_SIZE_MEDIUM,
+                  size: constants.Constants.iconSizeMedium,
                 ),
-                cupertino.SizedBox(width: constants.Constants.SPACING_SMALL),
+                cupertino.SizedBox(width: constants.Constants.spacingSmall),
                 cupertino.Text(
                   '重置導航狀態',
                   style: cupertino.TextStyle(
                     color: cupertino.CupertinoColors.label,
-                    fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                    fontSize: constants.Constants.fontSizeMedium,
                     fontWeight: cupertino.FontWeight.w600,
                   ),
                 ),

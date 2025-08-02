@@ -241,7 +241,7 @@ void main() {
     test('初始狀態測試', () {
       // STEP 04.01: 驗證初始狀態
       expect(themeProvider.isDarkMode, false);
-      expect(themeProvider.textScaleFactor, 1.0);
+      expect(themeProvider.textScaleValue, 1.0);
       expect(themeProvider.fontFamily, 'system');
       expect(themeProvider.useSystemTheme, true);
     });
@@ -269,22 +269,22 @@ void main() {
 
     test('文字縮放比例設定', () {
       // STEP 04.05: 測試有效範圍內的縮放
-      themeProvider.setTextScaleFactor(1.2);
-      expect(themeProvider.textScaleFactor, 1.2);
+      themeProvider.setTextScaleValue(1.2);
+      expect(themeProvider.textScaleValue, 1.2);
 
       // STEP 04.06: 測試邊界值
-      themeProvider.setTextScaleFactor(0.8);
-      expect(themeProvider.textScaleFactor, 0.8);
+      themeProvider.setTextScaleValue(0.8);
+      expect(themeProvider.textScaleValue, 0.8);
 
-      themeProvider.setTextScaleFactor(2.0);
-      expect(themeProvider.textScaleFactor, 2.0);
+      themeProvider.setTextScaleValue(2.0);
+      expect(themeProvider.textScaleValue, 2.0);
 
       // STEP 04.07: 測試超出範圍的值不會被設定
-      themeProvider.setTextScaleFactor(0.5); // 小於0.8
-      expect(themeProvider.textScaleFactor, 2.0); // 應該保持之前的值
+      themeProvider.setTextScaleValue(0.5); // 小於0.8
+      expect(themeProvider.textScaleValue, 2.0); // 應該保持之前的值
 
-      themeProvider.setTextScaleFactor(3.0); // 大於2.0
-      expect(themeProvider.textScaleFactor, 2.0); // 應該保持之前的值
+      themeProvider.setTextScaleValue(3.0); // 大於2.0
+      expect(themeProvider.textScaleValue, 2.0); // 應該保持之前的值
     });
 
     test('字體家族設定', () {
@@ -308,7 +308,7 @@ void main() {
     test('主題重置', () {
       // STEP 04.10: 設定一些非預設值
       themeProvider.setDarkMode(true);
-      themeProvider.setTextScaleFactor(1.5);
+      themeProvider.setTextScaleValue(1.5);
       themeProvider.setFontFamily('Custom');
       themeProvider.toggleSystemTheme();
 
@@ -317,7 +317,7 @@ void main() {
 
       // STEP 04.12: 驗證重置結果
       expect(themeProvider.isDarkMode, false);
-      expect(themeProvider.textScaleFactor, 1.0);
+      expect(themeProvider.textScaleValue, 1.0);
       expect(themeProvider.fontFamily, 'system');
       expect(themeProvider.useSystemTheme, true);
     });
@@ -325,14 +325,14 @@ void main() {
     test('主題設定摘要', () {
       // STEP 04.13: 設定一些主題值
       themeProvider.setDarkMode(true);
-      themeProvider.setTextScaleFactor(1.3);
+      themeProvider.setTextScaleValue(1.3);
       themeProvider.setFontFamily('Helvetica');
 
       // STEP 04.14: 取得主題設定摘要
       final settings = themeProvider.getThemeSettings();
 
       expect(settings['isDarkMode'], true);
-      expect(settings['textScaleFactor'], 1.3);
+      expect(settings['textScaleValue'], 1.3);
       expect(settings['fontFamily'], 'Helvetica');
       expect(settings['useSystemTheme'], false);
     });

@@ -31,11 +31,11 @@ class MainScreen extends cupertino.StatelessWidget {
   cupertino.Widget _buildCurrentPage(int selectedIndex) {
     // STEP 01.01: 根據選中的索引返回對應頁面
     switch (selectedIndex) {
-      case constants.Constants.NAV_INDEX_A:
+      case constants.Constants.navIndexA:
         return const screen_a.ScreenA();
-      case constants.Constants.NAV_INDEX_B:
+      case constants.Constants.navIndexB:
         return const screen_b.ScreenB();
-      case constants.Constants.NAV_INDEX_C:
+      case constants.Constants.navIndexC:
         return const screen_c.ScreenC();
       default:
         return _buildPagePlaceholder(
@@ -62,7 +62,9 @@ class MainScreen extends cupertino.StatelessWidget {
           responsive_widgets.ResponsiveContainer(
             padding: screen_util.ScreenUtil.instance.responsivePadding(all: 24),
             decoration: cupertino.BoxDecoration(
-              color: cupertino.CupertinoColors.systemBlue.withOpacity(0.1),
+              color: cupertino.CupertinoColors.systemBlue.withValues(
+                alpha: 0.1,
+              ),
               shape: cupertino.BoxShape.circle,
             ),
             child: cupertino.Icon(
@@ -102,11 +104,15 @@ class MainScreen extends cupertino.StatelessWidget {
               vertical: 8,
             ),
             decoration: cupertino.BoxDecoration(
-              color: cupertino.CupertinoColors.systemYellow.withOpacity(0.2),
+              color: cupertino.CupertinoColors.systemYellow.withValues(
+                alpha: 0.2,
+              ),
               borderRadius: screen_util.ScreenUtil.instance
                   .responsiveBorderRadius(16),
               border: cupertino.Border.all(
-                color: cupertino.CupertinoColors.systemYellow.withOpacity(0.5),
+                color: cupertino.CupertinoColors.systemYellow.withValues(
+                  alpha: 0.5,
+                ),
                 width: 1,
               ),
             ),
@@ -205,7 +211,7 @@ class MainScreen extends cupertino.StatelessWidget {
         },
       ),
       middle: responsive_widgets.ResponsiveText(
-        constants.Constants.APP_NAME,
+        constants.Constants.appName,
         fontSize: 18,
         fontWeight: cupertino.FontWeight.w600,
       ),

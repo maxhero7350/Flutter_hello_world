@@ -5,6 +5,9 @@ import '../utils/constants.dart';
 import '../models/time_data_model.dart';
 import '../models/message_model.dart';
 
+// ===== CUSTOM UTILS =====
+import '../utils/logger_util.dart' as logger_util;
+
 /// 離線儲存服務
 /// 提供本地快取和離線資料管理功能
 class OfflineStorageService {
@@ -25,15 +28,15 @@ class OfflineStorageService {
     await initialize();
     try {
       final jsonString = timeData.toJson();
-      await _prefs!.setString(Constants.PREF_LAST_TIME_DATA, jsonString);
+      await _prefs!.setString(Constants.prefLastTimeData, jsonString);
       await _prefs!.setInt(
-        '${Constants.PREF_LAST_TIME_DATA}_timestamp',
+        '${Constants.prefLastTimeData}_timestamp',
         DateTime.now().millisecondsSinceEpoch,
       );
 
-      print('離線儲存：時間資料已快取');
+      logger_util.LoggerUtil.database('離線儲存：時間資料已快取');
     } catch (e) {
-      print('離線儲存錯誤：$e');
+      logger_util.LoggerUtil.error('離線儲存錯誤：$e');
     }
   }
 
@@ -41,14 +44,14 @@ class OfflineStorageService {
   Future<TimeDataModel?> getLastTimeData() async {
     await initialize();
     try {
-      final jsonString = _prefs!.getString(Constants.PREF_LAST_TIME_DATA);
+      final jsonString = _prefs!.getString(Constants.prefLastTimeData);
       if (jsonString != null) {
         final timeData = TimeDataModel.fromJson(jsonString);
-        print('離線讀取：找到快取的時間資料');
+        logger_util.LoggerUtil.database('離線讀取：找到快取的時間資料');
         return timeData;
       }
     } catch (e) {
-      print('離線讀取錯誤：$e');
+      logger_util.LoggerUtil.error('離線讀取錯誤：$e');
     }
     return null;
   }
@@ -56,9 +59,7 @@ class OfflineStorageService {
   /// STEP 04: 獲取快取資料的時間戳
   Future<DateTime?> getLastTimeDataTimestamp() async {
     await initialize();
-    final timestamp = _prefs!.getInt(
-      '${Constants.PREF_LAST_TIME_DATA}_timestamp',
-    );
+    final timestamp = _prefs!.getInt('${Constants.prefLastTimeData}_timestamp');
     if (timestamp != null) {
       return DateTime.fromMillisecondsSinceEpoch(timestamp);
     }
@@ -74,7 +75,9 @@ class OfflineStorageService {
     final difference = now.difference(cacheTime);
     final isValid = difference.inMinutes < maxAgeMinutes;
 
-    print('快取檢查：${isValid ? '有效' : '已過期'} (${difference.inMinutes}分鐘前)');
+    logger_util.LoggerUtil.database(
+      '快取檢查：${isValid ? '有效' : '已過期'} (${difference.inMinutes}分鐘前)',
+    );
     return isValid;
   }
 
@@ -86,15 +89,15 @@ class OfflineStorageService {
   }) async {
     await initialize();
     await _prefs!.setBool(
-      '${Constants.PREF_OFFLINE_SETTINGS}_auto_sync',
+      '${Constants.prefOfflineSettings}_auto_sync',
       autoSync,
     );
     await _prefs!.setInt(
-      '${Constants.PREF_OFFLINE_SETTINGS}_cache_max_age',
+      '${Constants.prefOfflineSettings}_cache_max_age',
       cacheMaxAge,
     );
     await _prefs!.setBool(
-      '${Constants.PREF_OFFLINE_SETTINGS}_show_indicator',
+      '${Constants.prefOfflineSettings}_show_indicator',
       showOfflineIndicator,
     );
   }
@@ -104,15 +107,12 @@ class OfflineStorageService {
     await initialize();
     return {
       'autoSync':
-          _prefs!.getBool('${Constants.PREF_OFFLINE_SETTINGS}_auto_sync') ??
-          true,
+          _prefs!.getBool('${Constants.prefOfflineSettings}_auto_sync') ?? true,
       'cacheMaxAge':
-          _prefs!.getInt('${Constants.PREF_OFFLINE_SETTINGS}_cache_max_age') ??
+          _prefs!.getInt('${Constants.prefOfflineSettings}_cache_max_age') ??
           30,
       'showOfflineIndicator':
-          _prefs!.getBool(
-            '${Constants.PREF_OFFLINE_SETTINGS}_show_indicator',
-          ) ??
+          _prefs!.getBool('${Constants.prefOfflineSettings}_show_indicator') ??
           true,
     };
   }
@@ -122,7 +122,7 @@ class OfflineStorageService {
     await initialize();
     try {
       final existingHistory =
-          _prefs!.getStringList(Constants.PREF_API_HISTORY) ?? [];
+          _prefs!.getStringList(Constants.prefApiHistory) ?? [];
 
       // 添加新記錄
       final newRecord = json.encode({
@@ -137,10 +137,10 @@ class OfflineStorageService {
         existingHistory.removeAt(0);
       }
 
-      await _prefs!.setStringList(Constants.PREF_API_HISTORY, existingHistory);
-      print('API歷史記錄已儲存');
+      await _prefs!.setStringList(Constants.prefApiHistory, existingHistory);
+      logger_util.LoggerUtil.database('API歷史記錄已儲存');
     } catch (e) {
-      print('儲存API歷史記錄錯誤：$e');
+      logger_util.LoggerUtil.error('儲存API歷史記錄錯誤：$e');
     }
   }
 
@@ -148,8 +148,7 @@ class OfflineStorageService {
   Future<List<Map<String, dynamic>>> getApiCallHistory({int limit = 20}) async {
     await initialize();
     try {
-      final historyList =
-          _prefs!.getStringList(Constants.PREF_API_HISTORY) ?? [];
+      final historyList = _prefs!.getStringList(Constants.prefApiHistory) ?? [];
 
       final history = historyList
           .map((item) => json.decode(item) as Map<String, dynamic>)
@@ -163,7 +162,7 @@ class OfflineStorageService {
       // 限制返回數量
       return history.take(limit).toList();
     } catch (e) {
-      print('讀取API歷史記錄錯誤：$e');
+      logger_util.LoggerUtil.error('讀取API歷史記錄錯誤：$e');
       return [];
     }
   }
@@ -173,10 +172,10 @@ class OfflineStorageService {
     await initialize();
     try {
       final jsonList = messages.map((msg) => msg.toJson()).toList();
-      await _prefs!.setStringList(Constants.PREF_OFFLINE_QUEUE, jsonList);
-      print('離線訊息佇列已儲存：${messages.length}筆');
+      await _prefs!.setStringList(Constants.prefOfflineQueue, jsonList);
+      logger_util.LoggerUtil.database('離線訊息佇列已儲存：${messages.length}筆');
     } catch (e) {
-      print('儲存離線訊息佇列錯誤：$e');
+      logger_util.LoggerUtil.error('儲存離線訊息佇列錯誤：$e');
     }
   }
 
@@ -184,16 +183,15 @@ class OfflineStorageService {
   Future<List<MessageModel>> getOfflineMessageQueue() async {
     await initialize();
     try {
-      final jsonList =
-          _prefs!.getStringList(Constants.PREF_OFFLINE_QUEUE) ?? [];
+      final jsonList = _prefs!.getStringList(Constants.prefOfflineQueue) ?? [];
       final messages = jsonList
           .map((json) => MessageModel.fromJson(json))
           .toList();
 
-      print('離線訊息佇列讀取：${messages.length}筆');
+      logger_util.LoggerUtil.database('離線訊息佇列讀取：${messages.length}筆');
       return messages;
     } catch (e) {
-      print('讀取離線訊息佇列錯誤：$e');
+      logger_util.LoggerUtil.error('讀取離線訊息佇列錯誤：$e');
       return [];
     }
   }
@@ -201,8 +199,8 @@ class OfflineStorageService {
   /// STEP 12: 清空離線訊息佇列
   Future<void> clearOfflineMessageQueue() async {
     await initialize();
-    await _prefs!.remove(Constants.PREF_OFFLINE_QUEUE);
-    print('離線訊息佇列已清空');
+    await _prefs!.remove(Constants.prefOfflineQueue);
+    logger_util.LoggerUtil.database('離線訊息佇列已清空');
   }
 
   /// STEP 13: 儲存網路狀態變化歷史
@@ -213,7 +211,7 @@ class OfflineStorageService {
     await initialize();
     try {
       final statusHistory =
-          _prefs!.getStringList(Constants.PREF_NETWORK_HISTORY) ?? [];
+          _prefs!.getStringList(Constants.prefNetworkHistory) ?? [];
 
       final newStatus = json.encode({
         'status': status,
@@ -228,12 +226,9 @@ class OfflineStorageService {
         statusHistory.removeAt(0);
       }
 
-      await _prefs!.setStringList(
-        Constants.PREF_NETWORK_HISTORY,
-        statusHistory,
-      );
+      await _prefs!.setStringList(Constants.prefNetworkHistory, statusHistory);
     } catch (e) {
-      print('儲存網路狀態歷史錯誤：$e');
+      logger_util.LoggerUtil.error('儲存網路狀態歷史錯誤：$e');
     }
   }
 
@@ -244,7 +239,7 @@ class OfflineStorageService {
     await initialize();
     try {
       final historyList =
-          _prefs!.getStringList(Constants.PREF_NETWORK_HISTORY) ?? [];
+          _prefs!.getStringList(Constants.prefNetworkHistory) ?? [];
 
       final history = historyList
           .map((item) => json.decode(item) as Map<String, dynamic>)
@@ -257,7 +252,7 @@ class OfflineStorageService {
 
       return history.take(limit).toList();
     } catch (e) {
-      print('讀取網路狀態歷史錯誤：$e');
+      logger_util.LoggerUtil.error('讀取網路狀態歷史錯誤：$e');
       return [];
     }
   }
@@ -289,15 +284,15 @@ class OfflineStorageService {
   Future<void> clearAllCache() async {
     await initialize();
     try {
-      await _prefs!.remove(Constants.PREF_LAST_TIME_DATA);
-      await _prefs!.remove('${Constants.PREF_LAST_TIME_DATA}_timestamp');
-      await _prefs!.remove(Constants.PREF_API_HISTORY);
-      await _prefs!.remove(Constants.PREF_OFFLINE_QUEUE);
-      await _prefs!.remove(Constants.PREF_NETWORK_HISTORY);
+      await _prefs!.remove(Constants.prefLastTimeData);
+      await _prefs!.remove('${Constants.prefLastTimeData}_timestamp');
+      await _prefs!.remove(Constants.prefApiHistory);
+      await _prefs!.remove(Constants.prefOfflineQueue);
+      await _prefs!.remove(Constants.prefNetworkHistory);
 
-      print('所有快取資料已清除');
+      logger_util.LoggerUtil.database('所有快取資料已清除');
     } catch (e) {
-      print('清除快取錯誤：$e');
+      logger_util.LoggerUtil.error('清除快取錯誤：$e');
     }
   }
 
@@ -305,13 +300,13 @@ class OfflineStorageService {
   Future<void> resetOfflineSettings() async {
     await initialize();
     try {
-      await _prefs!.remove('${Constants.PREF_OFFLINE_SETTINGS}_auto_sync');
-      await _prefs!.remove('${Constants.PREF_OFFLINE_SETTINGS}_cache_max_age');
-      await _prefs!.remove('${Constants.PREF_OFFLINE_SETTINGS}_show_indicator');
+      await _prefs!.remove('${Constants.prefOfflineSettings}_auto_sync');
+      await _prefs!.remove('${Constants.prefOfflineSettings}_cache_max_age');
+      await _prefs!.remove('${Constants.prefOfflineSettings}_show_indicator');
 
-      print('離線設定已重置為預設值');
+      logger_util.LoggerUtil.database('離線設定已重置為預設值');
     } catch (e) {
-      print('重置離線設定錯誤：$e');
+      logger_util.LoggerUtil.error('重置離線設定錯誤：$e');
     }
   }
 }

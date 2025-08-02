@@ -11,7 +11,7 @@ class LoggerUtil {
       lineLength: 120, // 每行最大長度
       colors: true, // 啟用顏色
       printEmojis: true, // 啟用表情符號
-      printTime: true, // 顯示時間戳
+      dateTimeFormat: logger.DateTimeFormat.onlyTimeAndSinceStart, // 顯示時間戳
     ),
     // STEP 02: 設定日誌級別（可根據環境調整）
     level: logger.Level.debug,

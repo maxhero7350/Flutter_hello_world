@@ -18,11 +18,11 @@ class ApiServiceWithLogger {
   /// 建構函式
   ApiServiceWithLogger({
     http.Client? httpClient,
-    connectivity.Connectivity? connectivity,
+    connectivity.Connectivity? connectivityClient,
     loading_provider.LoadingProvider? loadingProvider,
     offline_storage.OfflineStorageService? offlineStorage,
   }) : _httpClient = httpClient ?? http.Client(),
-       _connectivity = connectivity ?? connectivity.Connectivity(),
+       _connectivity = connectivityClient ?? connectivity.Connectivity(),
        _loadingProvider = loadingProvider,
        _offlineStorage = offlineStorage;
 
@@ -66,18 +66,18 @@ class ApiServiceWithLogger {
           return cachedData;
         } else {
           logger_util.LoggerUtil.warning('無可用的快取資料');
-          throw Exception('${constants.Constants.ERROR_NETWORK}，且無可用的快取資料');
+          throw Exception('${constants.Constants.errorNetwork}，且無可用的快取資料');
         }
       }
 
       // STEP 02.04: 發送HTTP請求
       if (!connected) {
         logger_util.LoggerUtil.error('網路未連線，無法發送請求');
-        throw Exception(constants.Constants.ERROR_NETWORK);
+        throw Exception(constants.Constants.errorNetwork);
       }
 
       logger_util.LoggerUtil.network(
-        '正在呼叫時間API: ${constants.Constants.TIME_API_FULL_URL}',
+        '正在呼叫時間API: ${constants.Constants.timeApiFullUrl}',
       );
 
       // STEP 02.05: 嘗試主要API
@@ -85,15 +85,13 @@ class ApiServiceWithLogger {
       try {
         response = await _httpClient
             .get(
-              Uri.parse(constants.Constants.TIME_API_FULL_URL),
+              Uri.parse(constants.Constants.timeApiFullUrl),
               headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
               },
             )
-            .timeout(
-              Duration(seconds: constants.Constants.API_TIMEOUT_SECONDS),
-            );
+            .timeout(Duration(seconds: constants.Constants.apiTimeoutSeconds));
 
         logger_util.LoggerUtil.network('主要API呼叫成功，狀態碼: ${response.statusCode}');
       } catch (e) {
@@ -103,14 +101,14 @@ class ApiServiceWithLogger {
         try {
           response = await _httpClient
               .get(
-                Uri.parse(constants.Constants.BACKUP_TIME_API_URL),
+                Uri.parse(constants.Constants.backupTimeApiUrl),
                 headers: {
                   'Content-Type': 'application/json',
                   'Accept': 'application/json',
                 },
               )
               .timeout(
-                Duration(seconds: constants.Constants.API_TIMEOUT_SECONDS),
+                Duration(seconds: constants.Constants.apiTimeoutSeconds),
               );
           logger_util.LoggerUtil.network(
             '備用API呼叫成功，狀態碼: ${response.statusCode}',
@@ -143,7 +141,7 @@ class ApiServiceWithLogger {
       }
     } catch (e) {
       logger_util.LoggerUtil.error('獲取時間資料失敗', e);
-      throw e;
+      rethrow;
     } finally {
       // STEP 02.10: 隱藏載入狀態
       _loadingProvider?.hideLoading();
@@ -186,5 +184,224 @@ class ApiServiceWithLogger {
     // STEP 05.01: 關閉 HTTP 客戶端
     _httpClient.close();
     logger_util.LoggerUtil.info('API服務資源已釋放');
+  }
+
+  /// STEP 06: 獲取快取統計資訊
+  Future<Map<String, dynamic>> getCacheStats() async {
+    try {
+      // STEP 06.01: 從離線儲存獲取快取統計
+      final stats = await _offlineStorage?.getCacheStats();
+      logger_util.LoggerUtil.database('快取統計資訊獲取成功');
+      return stats ?? {};
+    } catch (e) {
+      logger_util.LoggerUtil.error('獲取快取統計資訊失敗', e);
+      return {};
+    }
+  }
+
+  /// STEP 07: 清除所有快取
+  Future<void> clearAllCache() async {
+    try {
+      // STEP 07.01: 清除離線儲存中的所有快取
+      await _offlineStorage?.clearAllCache();
+      logger_util.LoggerUtil.database('所有快取已清除');
+    } catch (e) {
+      logger_util.LoggerUtil.error('清除快取失敗', e);
+    }
+  }
+
+  /// STEP 08: 獲取離線設定
+  Future<Map<String, dynamic>> getOfflineSettings() async {
+    try {
+      // STEP 08.01: 從離線儲存獲取設定
+      final settings = await _offlineStorage?.getOfflineSettings();
+      logger_util.LoggerUtil.database('離線設定獲取成功');
+      return settings ?? {};
+    } catch (e) {
+      logger_util.LoggerUtil.error('獲取離線設定失敗', e);
+      return {};
+    }
+  }
+
+  /// STEP 09: 儲存離線設定
+  Future<void> saveOfflineSettings({
+    required bool autoSync,
+    required int cacheMaxAge,
+    required bool showOfflineIndicator,
+  }) async {
+    try {
+      // STEP 09.01: 儲存設定到離線儲存
+      await _offlineStorage?.saveOfflineSettings(
+        autoSync: autoSync,
+        cacheMaxAge: cacheMaxAge,
+        showOfflineIndicator: showOfflineIndicator,
+      );
+      logger_util.LoggerUtil.database('離線設定儲存成功');
+    } catch (e) {
+      logger_util.LoggerUtil.error('儲存離線設定失敗', e);
+    }
+  }
+
+  /// STEP 10: 獲取API呼叫歷史
+  Future<List<Map<String, dynamic>>> getApiCallHistory({int limit = 20}) async {
+    try {
+      // STEP 10.01: 從離線儲存獲取API呼叫歷史
+      final history = await _offlineStorage?.getApiCallHistory(limit: limit);
+      logger_util.LoggerUtil.database(
+        'API呼叫歷史獲取成功，共 ${history?.length ?? 0} 筆記錄',
+      );
+      return history ?? [];
+    } catch (e) {
+      logger_util.LoggerUtil.error('獲取API呼叫歷史失敗', e);
+      return [];
+    }
+  }
+
+  /// STEP 11: 同步離線資料（當網路恢復時）
+  Future<void> syncOfflineData() async {
+    try {
+      logger_util.LoggerUtil.info('開始同步離線資料...');
+
+      // STEP 11.01: 檢查網路連線
+      final connected = await isConnected();
+      if (!connected) {
+        logger_util.LoggerUtil.warning('無網路連線，無法同步');
+        return;
+      }
+
+      // STEP 11.02: 獲取離線訊息佇列
+      final offlineQueue =
+          await _offlineStorage?.getOfflineMessageQueue() ?? [];
+      if (offlineQueue.isNotEmpty) {
+        logger_util.LoggerUtil.info('發現 ${offlineQueue.length} 筆離線訊息，開始同步...');
+
+        // STEP 11.03: 清空離線訊息佇列
+        await _offlineStorage?.clearOfflineMessageQueue();
+        logger_util.LoggerUtil.info('離線訊息同步完成');
+      }
+
+      // STEP 11.04: 刷新時間資料
+      await fetchCurrentTime(forceOnline: true);
+
+      // STEP 11.05: 記錄同步事件
+      await _offlineStorage?.saveApiCallHistory({
+        'type': 'syncOfflineData',
+        'success': true,
+        'syncedMessages': offlineQueue.length,
+      });
+
+      logger_util.LoggerUtil.info('離線資料同步完成');
+    } catch (e) {
+      logger_util.LoggerUtil.error('同步離線資料錯誤', e);
+
+      // STEP 11.06: 記錄同步失敗事件
+      await _offlineStorage?.saveApiCallHistory({
+        'type': 'syncOfflineData',
+        'success': false,
+        'error': e.toString(),
+      });
+    }
+  }
+
+  /// STEP 12: 監聽網路狀態變化
+  Stream<connectivity.ConnectivityResult> get connectivityStream {
+    return _connectivity.onConnectivityChanged;
+  }
+
+  /// STEP 13: 獲取網路連線類型
+  Future<String> getNetworkType() async {
+    try {
+      // STEP 13.01: 檢查網路連線類型
+      final connectivityResult = await _connectivity.checkConnectivity();
+      String networkType;
+
+      switch (connectivityResult) {
+        case connectivity.ConnectivityResult.wifi:
+          networkType = 'WiFi';
+          break;
+        case connectivity.ConnectivityResult.mobile:
+          networkType = '行動網路';
+          break;
+        case connectivity.ConnectivityResult.ethernet:
+          networkType = '有線網路';
+          break;
+        case connectivity.ConnectivityResult.bluetooth:
+          networkType = '藍牙';
+          break;
+        case connectivity.ConnectivityResult.none:
+          networkType = '無網路連線';
+          break;
+        default:
+          networkType = '未知';
+      }
+
+      logger_util.LoggerUtil.network('網路連線類型: $networkType');
+      return networkType;
+    } catch (e) {
+      logger_util.LoggerUtil.error('獲取網路連線類型失敗', e);
+      return '檢查失敗';
+    }
+  }
+
+  /// STEP 14: 測試API連線
+  Future<Map<String, dynamic>> testApiConnection() async {
+    final startTime = DateTime.now();
+
+    try {
+      // STEP 14.01: 檢查網路狀態
+      final connected = await isConnected();
+      final connectivityResult = await _connectivity.checkConnectivity();
+
+      if (!connected) {
+        logger_util.LoggerUtil.warning('測試API連線失敗：無網路連線');
+        return {
+          'success': false,
+          'error': constants.Constants.errorNetwork,
+          'networkStatus': connectivityResult.toString(),
+          'responseTime': 0,
+        };
+      }
+
+      // STEP 14.02: 發送測試請求
+      logger_util.LoggerUtil.network('開始測試API連線...');
+      final response = await _httpClient
+          .get(
+            Uri.parse(constants.Constants.timeApiFullUrl),
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json',
+            },
+          )
+          .timeout(Duration(seconds: constants.Constants.apiTimeoutSeconds));
+
+      final endTime = DateTime.now();
+      final responseTime = endTime.difference(startTime).inMilliseconds;
+
+      // STEP 14.03: 記錄測試結果
+      final success = response.statusCode == 200;
+      logger_util.LoggerUtil.network(
+        'API連線測試完成，狀態碼: ${response.statusCode}，回應時間: ${responseTime}ms',
+      );
+
+      return {
+        'success': success,
+        'statusCode': response.statusCode,
+        'responseTime': responseTime,
+        'networkStatus': connectivityResult.toString(),
+        'apiUrl': constants.Constants.timeApiFullUrl,
+        'responseSize': response.body.length,
+      };
+    } catch (e) {
+      final endTime = DateTime.now();
+      final responseTime = endTime.difference(startTime).inMilliseconds;
+
+      logger_util.LoggerUtil.error('API連線測試失敗', e);
+      return {
+        'success': false,
+        'error': e.toString(),
+        'responseTime': responseTime,
+        'networkStatus': 'unknown',
+      };
+    }
   }
 }

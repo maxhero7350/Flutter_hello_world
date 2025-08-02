@@ -5,13 +5,15 @@ import 'package:flutter/foundation.dart' as foundation;
 class ThemeProvider extends foundation.ChangeNotifier {
   // STEP 01: 主題基本狀態
   bool _isDarkMode = false;
-  double _textScaleFactor = 1.0;
+  double _textScaleValue = 1.0;
   String _fontFamily = 'system';
   bool _useSystemTheme = true;
 
   // STEP 02: Getters - 取得主題狀態
   bool get isDarkMode => _isDarkMode;
-  double get textScaleFactor => _textScaleFactor;
+  double get textScaleValue => _textScaleValue;
+  cupertino.TextScaler get textScaler =>
+      cupertino.TextScaler.linear(_textScaleValue);
   String get fontFamily => _fontFamily;
   bool get useSystemTheme => _useSystemTheme;
 
@@ -73,11 +75,11 @@ class ThemeProvider extends foundation.ChangeNotifier {
   }
 
   // STEP 08: 設定文字縮放比例
-  void setTextScaleFactor(double scale) {
+  void setTextScaleValue(double scale) {
     // STEP 08.01: 限制縮放比例範圍
     if (scale >= 0.8 && scale <= 2.0) {
       // STEP 08.02: 更新文字縮放比例
-      _textScaleFactor = scale;
+      _textScaleValue = scale;
       // STEP 08.03: 通知監聽者狀態變更
       notifyListeners();
     }
@@ -119,7 +121,7 @@ class ThemeProvider extends foundation.ChangeNotifier {
   void resetTheme() {
     // STEP 12.01: 重置所有主題設定到預設值
     _isDarkMode = false;
-    _textScaleFactor = 1.0;
+    _textScaleValue = 1.0;
     _fontFamily = 'system';
     _useSystemTheme = true;
     // STEP 12.02: 通知監聽者狀態變更
@@ -131,7 +133,7 @@ class ThemeProvider extends foundation.ChangeNotifier {
     // STEP 13.01: 返回當前主題設定
     return {
       'isDarkMode': _isDarkMode,
-      'textScaleFactor': _textScaleFactor,
+      'textScaleValue': _textScaleValue,
       'fontFamily': _fontFamily,
       'useSystemTheme': _useSystemTheme,
     };

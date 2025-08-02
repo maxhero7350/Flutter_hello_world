@@ -8,6 +8,9 @@ import 'package:path_provider/path_provider.dart';
 import '../models/message_model.dart' as message_model;
 import '../utils/constants.dart' as constants;
 
+// ===== CUSTOM UTILS =====
+import '../utils/logger_util.dart' as logger_util;
+
 /// SQLite資料庫服務
 /// 處理資料庫初始化、連接管理和所有CRUD操作
 class DatabaseService {
@@ -36,18 +39,18 @@ class DatabaseService {
       // STEP 01.02: 建立資料庫檔案路徑
       String path = join(
         documentsDirectory.path,
-        constants.Constants.DATABASE_NAME,
+        constants.Constants.databaseName,
       );
 
       // STEP 01.03: 開啟或建立資料庫
       return await openDatabase(
         path,
-        version: constants.Constants.DATABASE_VERSION,
+        version: constants.Constants.databaseVersion,
         onCreate: _createDatabase,
         onUpgrade: _upgradeDatabase,
       );
     } catch (e) {
-      throw Exception('${constants.Constants.ERROR_DATABASE}: 初始化失敗 - $e');
+      throw Exception('${constants.Constants.errorDatabase}: 初始化失敗 - $e');
     }
   }
 
@@ -55,11 +58,11 @@ class DatabaseService {
   Future<void> _createDatabase(Database db, int version) async {
     try {
       // STEP 02.01: 建立Messages表格
-      await db.execute(constants.Constants.CREATE_TABLE_MESSAGES);
+      await db.execute(constants.Constants.createTableMessages);
 
-      print('資料庫表格建立成功');
+      logger_util.LoggerUtil.database('資料庫表格建立成功');
     } catch (e) {
-      throw Exception('${constants.Constants.ERROR_DATABASE}: 建立表格失敗 - $e');
+      throw Exception('${constants.Constants.errorDatabase}: 建立表格失敗 - $e');
     }
   }
 
@@ -71,9 +74,9 @@ class DatabaseService {
   ) async {
     try {
       // 目前版本為1，暫無升級邏輯
-      print('資料庫從版本 $oldVersion 升級到版本 $newVersion');
+      logger_util.LoggerUtil.database('資料庫從版本 $oldVersion 升級到版本 $newVersion');
     } catch (e) {
-      throw Exception('${constants.Constants.ERROR_DATABASE}: 升級失敗 - $e');
+      throw Exception('${constants.Constants.errorDatabase}: 升級失敗 - $e');
     }
   }
 
@@ -85,19 +88,19 @@ class DatabaseService {
 
       // STEP 04.02: 準備資料（排除ID，因為是自動增長）
       final messageData = message.toMap();
-      messageData.remove(constants.Constants.COLUMN_ID);
+      messageData.remove(constants.Constants.columnId);
 
       // STEP 04.03: 插入資料並回傳新ID
       final id = await db.insert(
-        constants.Constants.TABLE_MESSAGES,
+        constants.Constants.tableMessages,
         messageData,
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
 
-      print('訊息插入成功，ID: $id');
+      logger_util.LoggerUtil.database('訊息插入成功，ID: $id');
       return id;
     } catch (e) {
-      throw Exception('${constants.Constants.ERROR_DATABASE}: 插入訊息失敗 - $e');
+      throw Exception('${constants.Constants.errorDatabase}: 插入訊息失敗 - $e');
     }
   }
 
@@ -109,8 +112,8 @@ class DatabaseService {
 
       // STEP 05.02: 查詢所有訊息（按建立時間倒序）
       final List<Map<String, dynamic>> maps = await db.query(
-        constants.Constants.TABLE_MESSAGES,
-        orderBy: '${constants.Constants.COLUMN_CREATED_AT} DESC',
+        constants.Constants.tableMessages,
+        orderBy: '${constants.Constants.columnCreatedAt} DESC',
       );
 
       // STEP 05.03: 轉換為MessageModel列表
@@ -118,7 +121,7 @@ class DatabaseService {
         return message_model.MessageModel.fromMap(maps[index]);
       });
     } catch (e) {
-      throw Exception('${constants.Constants.ERROR_DATABASE}: 取得訊息失敗 - $e');
+      throw Exception('${constants.Constants.errorDatabase}: 取得訊息失敗 - $e');
     }
   }
 
@@ -130,8 +133,8 @@ class DatabaseService {
 
       // STEP 06.02: 查詢特定ID的訊息
       final List<Map<String, dynamic>> maps = await db.query(
-        constants.Constants.TABLE_MESSAGES,
-        where: '${constants.Constants.COLUMN_ID} = ?',
+        constants.Constants.tableMessages,
+        where: '${constants.Constants.columnId} = ?',
         whereArgs: [id],
       );
 
@@ -141,7 +144,7 @@ class DatabaseService {
       }
       return null;
     } catch (e) {
-      throw Exception('${constants.Constants.ERROR_DATABASE}: 取得特定訊息失敗 - $e');
+      throw Exception('${constants.Constants.errorDatabase}: 取得特定訊息失敗 - $e');
     }
   }
 
@@ -158,16 +161,16 @@ class DatabaseService {
 
       // STEP 07.03: 更新訊息
       final rowsAffected = await db.update(
-        constants.Constants.TABLE_MESSAGES,
+        constants.Constants.tableMessages,
         message.toMap(),
-        where: '${constants.Constants.COLUMN_ID} = ?',
+        where: '${constants.Constants.columnId} = ?',
         whereArgs: [message.id],
       );
 
-      print('訊息更新成功，影響行數: $rowsAffected');
+      logger_util.LoggerUtil.database('訊息更新成功，影響行數: $rowsAffected');
       return rowsAffected;
     } catch (e) {
-      throw Exception('${constants.Constants.ERROR_DATABASE}: 更新訊息失敗 - $e');
+      throw Exception('${constants.Constants.errorDatabase}: 更新訊息失敗 - $e');
     }
   }
 
@@ -179,15 +182,15 @@ class DatabaseService {
 
       // STEP 08.02: 刪除指定ID的訊息
       final rowsAffected = await db.delete(
-        constants.Constants.TABLE_MESSAGES,
-        where: '${constants.Constants.COLUMN_ID} = ?',
+        constants.Constants.tableMessages,
+        where: '${constants.Constants.columnId} = ?',
         whereArgs: [id],
       );
 
-      print('訊息刪除成功，影響行數: $rowsAffected');
+      logger_util.LoggerUtil.database('訊息刪除成功，影響行數: $rowsAffected');
       return rowsAffected;
     } catch (e) {
-      throw Exception('${constants.Constants.ERROR_DATABASE}: 刪除訊息失敗 - $e');
+      throw Exception('${constants.Constants.errorDatabase}: 刪除訊息失敗 - $e');
     }
   }
 
@@ -201,14 +204,14 @@ class DatabaseService {
       final count =
           Sqflite.firstIntValue(
             await db.rawQuery(
-              'SELECT COUNT(*) FROM ${constants.Constants.TABLE_MESSAGES}',
+              'SELECT COUNT(*) FROM ${constants.Constants.tableMessages}',
             ),
           ) ??
           0;
 
       return count;
     } catch (e) {
-      throw Exception('${constants.Constants.ERROR_DATABASE}: 取得訊息數量失敗 - $e');
+      throw Exception('${constants.Constants.errorDatabase}: 取得訊息數量失敗 - $e');
     }
   }
 
@@ -219,12 +222,12 @@ class DatabaseService {
       final db = await database;
 
       // STEP 10.02: 刪除所有訊息
-      final rowsAffected = await db.delete(constants.Constants.TABLE_MESSAGES);
+      final rowsAffected = await db.delete(constants.Constants.tableMessages);
 
-      print('所有訊息清空成功，影響行數: $rowsAffected');
+      logger_util.LoggerUtil.database('所有訊息清空成功，影響行數: $rowsAffected');
       return rowsAffected;
     } catch (e) {
-      throw Exception('${constants.Constants.ERROR_DATABASE}: 清空訊息失敗 - $e');
+      throw Exception('${constants.Constants.errorDatabase}: 清空訊息失敗 - $e');
     }
   }
 
@@ -234,10 +237,10 @@ class DatabaseService {
       if (_database != null) {
         await _database!.close();
         _database = null;
-        print('資料庫連接已關閉');
+        logger_util.LoggerUtil.database('資料庫連接已關閉');
       }
     } catch (e) {
-      print('關閉資料庫失敗: $e');
+      logger_util.LoggerUtil.error('關閉資料庫失敗: $e');
     }
   }
 
@@ -247,7 +250,7 @@ class DatabaseService {
       Directory documentsDirectory = await getApplicationDocumentsDirectory();
       String path = join(
         documentsDirectory.path,
-        constants.Constants.DATABASE_NAME,
+        constants.Constants.databaseName,
       );
       return await File(path).exists();
     } catch (e) {
@@ -261,7 +264,7 @@ class DatabaseService {
       Directory documentsDirectory = await getApplicationDocumentsDirectory();
       String path = join(
         documentsDirectory.path,
-        constants.Constants.DATABASE_NAME,
+        constants.Constants.databaseName,
       );
       File dbFile = File(path);
 

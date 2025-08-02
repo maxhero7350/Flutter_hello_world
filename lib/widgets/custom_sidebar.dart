@@ -14,6 +14,9 @@ import '../utils/screen_util.dart' as screen_util;
 // ===== CUSTOM WIDGETS =====
 import '../widgets/responsive_layout.dart' as responsive_widgets;
 
+// ===== CUSTOM UTILS =====
+import '../utils/logger_util.dart' as logger_util;
+
 /// 自定義側邊欄
 /// 提供導航功能和設定選項
 class CustomSidebar extends cupertino.StatelessWidget {
@@ -40,8 +43,8 @@ class CustomSidebar extends cupertino.StatelessWidget {
           decoration: cupertino.BoxDecoration(
             color: cupertino.CupertinoColors.systemBlue,
             borderRadius: cupertino.BorderRadius.only(
-              bottomLeft: cupertino.Radius.circular(16.r),
-              bottomRight: cupertino.Radius.circular(16.r),
+              bottomLeft: cupertino.Radius.circular(16),
+              bottomRight: cupertino.Radius.circular(16),
             ),
           ),
           child: cupertino.Column(
@@ -50,7 +53,7 @@ class CustomSidebar extends cupertino.StatelessWidget {
               // STEP 01.03: 用戶頭像
               responsive_widgets.ResponsiveContainer(
                 decoration: cupertino.BoxDecoration(
-                  color: cupertino.CupertinoColors.white.withOpacity(0.2),
+                  color: cupertino.CupertinoColors.white.withValues(alpha: 0.2),
                   shape: cupertino.BoxShape.circle,
                 ),
                 padding: screen_util.ScreenUtil.instance.responsivePadding(
@@ -77,7 +80,7 @@ class CustomSidebar extends cupertino.StatelessWidget {
               responsive_widgets.ResponsiveText(
                 isLoggedIn ? '已登入' : '訪客模式',
                 fontSize: 14,
-                color: cupertino.CupertinoColors.white.withOpacity(0.8),
+                color: cupertino.CupertinoColors.white.withValues(alpha: 0.8),
               ),
             ],
           ),
@@ -108,7 +111,7 @@ class CustomSidebar extends cupertino.StatelessWidget {
           vertical: 12,
         ),
         color: isSelected
-            ? cupertino.CupertinoColors.systemBlue.withOpacity(0.1)
+            ? cupertino.CupertinoColors.systemBlue.withValues(alpha: 0.1)
             : null,
         borderRadius: screen_util.ScreenUtil.instance.responsiveBorderRadius(8),
         onPressed: onTap,
@@ -214,7 +217,7 @@ class CustomSidebar extends cupertino.StatelessWidget {
       builder: (cupertino.BuildContext context) {
         return cupertino.CupertinoAlertDialog(
           title: responsive_widgets.ResponsiveText(
-            '關於 ${constants.Constants.APP_NAME}',
+            '關於 ${constants.Constants.appName}',
             fontSize: 18,
             fontWeight: cupertino.FontWeight.w600,
           ),
@@ -223,7 +226,7 @@ class CustomSidebar extends cupertino.StatelessWidget {
             children: [
               responsive_widgets.ResponsiveSpacing(spacing: 8),
               responsive_widgets.ResponsiveText(
-                'Version ${constants.Constants.APP_VERSION}',
+                'Version ${constants.Constants.appVersion}',
                 fontSize: 16,
               ),
               responsive_widgets.ResponsiveSpacing(spacing: 8),
@@ -270,7 +273,10 @@ class CustomSidebar extends cupertino.StatelessWidget {
               isDestructiveAction: true,
               child: const cupertino.Text('登出'),
               onPressed: () {
-                // STEP 05.01: 執行登出操作
+                // STEP 05.01: 記錄登出操作開始
+                logger_util.LoggerUtil.info('用戶開始執行登出操作');
+
+                // STEP 05.02: 執行登出操作
                 final userProvider =
                     provider.Provider.of<providers.UserProvider>(
                       context,
@@ -287,15 +293,18 @@ class CustomSidebar extends cupertino.StatelessWidget {
                       listen: false,
                     );
 
-                // STEP 05.02: 重置所有狀態
+                // STEP 05.03: 重置所有狀態
                 userProvider.logout();
                 appStateProvider.reset();
                 navigationProvider.resetNavigation();
 
-                // STEP 05.03: 關閉對話框
+                // STEP 05.04: 記錄登出操作完成
+                logger_util.LoggerUtil.info('用戶登出操作完成，所有狀態已重置');
+
+                // STEP 05.05: 關閉對話框
                 cupertino.Navigator.of(context).pop();
 
-                // STEP 05.04: 導航到登入頁面並清除所有路由
+                // STEP 05.06: 導航到登入頁面並清除所有路由
                 cupertino.Navigator.of(
                   context,
                 ).pushNamedAndRemoveUntil('/', (route) => false);
@@ -353,23 +362,29 @@ class CustomSidebar extends cupertino.StatelessWidget {
                       _buildNavigationItem(
                         icon: cupertino.CupertinoIcons.square_grid_2x2,
                         title: 'Screen A',
-                        index: constants.Constants.NAV_INDEX_A,
-                        onTap: () =>
-                            onItemTapped(constants.Constants.NAV_INDEX_A),
+                        index: constants.Constants.navIndexA,
+                        onTap: () {
+                          logger_util.LoggerUtil.user('用戶點擊側邊欄導航：Screen A');
+                          onItemTapped(constants.Constants.navIndexA);
+                        },
                       ),
                       _buildNavigationItem(
                         icon: cupertino.CupertinoIcons.doc_text,
                         title: 'Screen B',
-                        index: constants.Constants.NAV_INDEX_B,
-                        onTap: () =>
-                            onItemTapped(constants.Constants.NAV_INDEX_B),
+                        index: constants.Constants.navIndexB,
+                        onTap: () {
+                          logger_util.LoggerUtil.user('用戶點擊側邊欄導航：Screen B');
+                          onItemTapped(constants.Constants.navIndexB);
+                        },
                       ),
                       _buildNavigationItem(
                         icon: cupertino.CupertinoIcons.time,
                         title: 'Screen C',
-                        index: constants.Constants.NAV_INDEX_C,
-                        onTap: () =>
-                            onItemTapped(constants.Constants.NAV_INDEX_C),
+                        index: constants.Constants.navIndexC,
+                        onTap: () {
+                          logger_util.LoggerUtil.user('用戶點擊側邊欄導航：Screen C');
+                          onItemTapped(constants.Constants.navIndexC);
+                        },
                       ),
 
                       responsive_widgets.ResponsiveSpacing(spacing: 24),
@@ -388,13 +403,19 @@ class CustomSidebar extends cupertino.StatelessWidget {
                       _buildSettingItem(
                         icon: cupertino.CupertinoIcons.info_circle,
                         title: '關於',
-                        onTap: () => _showAboutDialog(context),
+                        onTap: () {
+                          logger_util.LoggerUtil.user('用戶點擊側邊欄設定：關於');
+                          _showAboutDialog(context);
+                        },
                       ),
                       _buildSettingItem(
                         icon: cupertino.CupertinoIcons.square_arrow_right,
                         title: '登出',
                         iconColor: cupertino.CupertinoColors.systemRed,
-                        onTap: () => _showLogoutConfirmation(context),
+                        onTap: () {
+                          logger_util.LoggerUtil.user('用戶點擊側邊欄設定：登出');
+                          _showLogoutConfirmation(context);
+                        },
                       ),
                     ],
                   ),

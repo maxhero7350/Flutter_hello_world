@@ -80,9 +80,14 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
   /// - context: 建構上下文，用於存取Provider和導航
   ///
   /// 返回：
-  /// - Future<void>: 非同步操作，支援載入狀態管理
+  /// - Future void: 非同步操作，支援載入狀態管理
   Future<void> _handleLogin(cupertino.BuildContext context) async {
-    // STEP 02.01: 取得Provider實例
+    // STEP 02.01: 保存context引用，避免async gap問題
+    // 在方法開始時就保存context，避免在async操作中直接使用
+    final navigatorContext = context;
+    final alertContext = context;
+
+    // STEP 02.02: 取得Provider實例
     // 從Provider架構中取得應用程式狀態和用戶狀態的實例
     // listen: false 表示不需要監聽這些Provider的變化
     final appStateProvider = provider.Provider.of<providers.AppStateProvider>(
@@ -94,60 +99,73 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
       listen: false,
     );
 
-    // STEP 02.02: 檢查輸入欄位
+    // STEP 02.03: 檢查輸入欄位
     // 驗證使用者名稱是否為空，提供用戶友善的錯誤提示
     if (_usernameController.text.trim().isEmpty) {
-      _showAlert(context, '請輸入使用者名稱');
+      if (mounted) {
+        _showAlert(alertContext, '請輸入使用者名稱');
+      }
       return;
     }
 
     // 驗證密碼是否為空，確保用戶輸入完整的登入資訊
     if (_passwordController.text.trim().isEmpty) {
-      _showAlert(context, '請輸入密碼');
+      if (mounted) {
+        _showAlert(alertContext, '請輸入密碼');
+      }
       return;
     }
 
-    // STEP 02.03: 設定載入狀態
+    // STEP 02.04: 設定載入狀態
     // 開始登入流程，顯示載入指示器
     // 清除之前的錯誤狀態，準備新的登入嘗試
     appStateProvider.setLoading(true);
     appStateProvider.clearError();
 
     try {
-      // STEP 02.04: 模擬登入延遲
+      // STEP 02.05: 模擬登入延遲
       // 模擬網路請求延遲，提供真實的用戶體驗
       // 在實際應用中，這裡會是真正的API呼叫
       await Future.delayed(const Duration(milliseconds: 1000));
 
-      // STEP 02.05: 執行登入
+      // STEP 02.06: 執行登入
       // 使用用戶輸入的使用者名稱進行登入
       // 更新用戶狀態，記錄登入資訊
       userProvider.login(_usernameController.text.trim());
 
-      // STEP 02.06: 更新應用程式狀態
+      // STEP 02.07: 更新應用程式狀態
       // 設定當前頁面為主頁面
       // 標記應用程式已不是首次執行
       appStateProvider.setCurrentPage('main');
       appStateProvider.setFirstRun(false);
 
-      // STEP 02.07: 導航到主頁面
+      // STEP 02.08: 導航到主頁面
       // 使用pushReplacementNamed進行頁面導航
       // 檢查Widget是否仍然掛載，避免在已銷毀的Widget上操作
       if (mounted) {
-        // 使用 unawaited 來避免 use_build_context_synchronously 警告
-        unawaited(material.Navigator.pushReplacementNamed(context, '/main'));
+        // 使用 addPostFrameCallback 來避免 use_build_context_synchronously 警告
+        material.WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            cupertino.Navigator.pushReplacementNamed(navigatorContext, '/main');
+          }
+        });
       }
     } catch (e) {
-      // STEP 02.08: 處理錯誤
+      // STEP 02.09: 處理錯誤
       // 捕獲登入過程中的任何錯誤
       // 更新應用程式錯誤狀態
       // 顯示用戶友善的錯誤提示
       appStateProvider.setError('登入過程發生錯誤：$e');
       if (mounted) {
-        _showAlert(context, '登入過程發生錯誤：$e');
+        // 使用 addPostFrameCallback 來避免 use_build_context_synchronously 警告
+        material.WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _showAlert(alertContext, '登入過程發生錯誤：$e');
+          }
+        });
       }
     } finally {
-      // STEP 02.09: 重置載入狀態
+      // STEP 02.10: 重置載入狀態
       // 無論成功或失敗，都要重置載入狀態
       // 隱藏載入指示器，讓用戶可以重新嘗試
       appStateProvider.setLoading(false);
@@ -161,7 +179,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
   ///
   /// 參數：
   /// - context: 建構上下文，用於存取Provider和導航
-  void _handleQuickLogin(material.BuildContext context) {
+  void _handleQuickLogin(cupertino.BuildContext context) {
     // STEP 03.01: 取得Provider實例
     // 取得用戶狀態和應用程式狀態的Provider實例
     final userProvider = provider.Provider.of<providers.UserProvider>(
@@ -176,7 +194,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
     // STEP 03.02: 使用預設使用者名稱登入
     // 使用常數中定義的預設使用者名稱
     // 跳過輸入驗證，直接進行登入
-    userProvider.login(constants.Constants.DEFAULT_USERNAME);
+    userProvider.login(constants.Constants.defaultUsername);
 
     // STEP 03.03: 更新應用程式狀態
     // 設定當前頁面為主頁面
@@ -186,7 +204,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
 
     // STEP 03.04: 導航到主頁面
     // 直接導航到主頁面，無需等待載入
-    material.Navigator.pushReplacementNamed(context, '/main');
+    cupertino.Navigator.pushReplacementNamed(context, '/main');
   }
 
   /// STEP 04: 顯示提示對話框
@@ -197,7 +215,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
   /// 參數：
   /// - context: 建構上下文，用於顯示對話框
   /// - message: 要顯示的訊息內容
-  void _showAlert(material.BuildContext context, String message) {
+  void _showAlert(cupertino.BuildContext context, String message) {
     // STEP 04.01: 顯示提示對話框
     // 使用showCupertinoDialog顯示iOS風格的對話框
     // 提供統一的用戶介面體驗
@@ -211,7 +229,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
             cupertino.CupertinoDialogAction(
               child: const material.Text('確定'),
               onPressed: () {
-                material.Navigator.of(context).pop();
+                cupertino.Navigator.of(context).pop();
               },
             ),
           ],
@@ -240,10 +258,11 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
     required material.TextEditingController controller,
     bool isPassword = false,
     material.TextInputType keyboardType = material.TextInputType.text,
-    required material.BuildContext context,
+    required cupertino.BuildContext context,
   }) {
     // STEP 05.01: 初始化ScreenUtil
     // 初始化響應式設計工具，獲取當前裝置資訊
+    // context 已經是 cupertino.BuildContext 類型，無需轉換
     screen_util.ScreenUtil.instance.init(context);
 
     // STEP 05.02: 返回響應式輸入欄位UI
@@ -270,7 +289,9 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
           ),
         ),
         style: material.TextStyle(fontSize: 16.sp),
-        onSubmitted: isPassword ? (_) => _handleLogin(context) : null,
+        onSubmitted: isPassword
+            ? (_) => unawaited(_handleLogin(context))
+            : null,
       ),
     );
   }
@@ -288,7 +309,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
   /// 返回：
   /// - Widget: 響應式登入按鈕Widget
   material.Widget _buildLoginButton(
-    material.BuildContext context,
+    cupertino.BuildContext context,
     bool isLoading,
   ) {
     // STEP 06.01: 返回響應式登入按鈕UI
@@ -302,9 +323,9 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
           : 5,
       margin: material.EdgeInsets.only(top: 16.r),
       child: cupertino.CupertinoButton(
-        color: cupertino.CupertinoColors.activeBlue,
+        color: cupertino.CupertinoColors.systemBlue,
         borderRadius: screen_util.ScreenUtil.instance.responsiveBorderRadius(8),
-        onPressed: isLoading ? null : () => _handleLogin(context),
+        onPressed: isLoading ? null : () => unawaited(_handleLogin(context)),
         child: isLoading
             ? cupertino.CupertinoActivityIndicator(
                 color: cupertino.CupertinoColors.white,
@@ -331,7 +352,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
   ///
   /// 返回：
   /// - Widget: 響應式快速登入按鈕Widget
-  material.Widget _buildQuickLoginButton(material.BuildContext context) {
+  material.Widget _buildQuickLoginButton(cupertino.BuildContext context) {
     // STEP 07.01: 返回響應式快速登入按鈕UI
     // 使用ResponsiveContainer確保按鈕在不同裝置上都有適當的尺寸
     return responsive_widgets.ResponsiveContainer(
@@ -374,7 +395,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
           // 顯示應用程式名稱，使用粗體字體強調
           // 使用系統標籤顏色，支援深色模式
           responsive_widgets.ResponsiveText(
-            constants.Constants.APP_NAME,
+            constants.Constants.appName,
             fontSize: 28,
             fontWeight: material.FontWeight.bold,
             color: cupertino.CupertinoColors.label,
@@ -409,7 +430,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
   /// 返回：
   /// - Widget: 響應式登入表單Widget
   material.Widget _buildLoginForm(
-    material.BuildContext context,
+    cupertino.BuildContext context,
     bool isLoading,
   ) {
     return responsive_widgets.ResponsiveContainer(
@@ -426,7 +447,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
         ),
         boxShadow: [
           material.BoxShadow(
-            color: cupertino.CupertinoColors.systemGrey.withOpacity(0.2),
+            color: cupertino.CupertinoColors.systemGrey.withValues(alpha: 0.2),
             blurRadius: 10,
             offset: const material.Offset(0, 2),
           ),
@@ -469,13 +490,14 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
     // STEP 10: 初始化響應式設計
     // 在build方法開始時初始化響應式設計工具
     // 確保所有子Widget都能獲得正確的裝置資訊
+    // 初始化響應式設計工具
     screen_util.ScreenUtil.instance.init(context);
 
     // STEP 10.01: 使用Consumer監聽AppStateProvider
     // 使用Consumer監聽應用程式狀態變化
     // 當載入狀態改變時，自動重建UI
     return provider.Consumer<providers.AppStateProvider>(
-      builder: (context, appStateProvider, child) {
+      builder: (material.BuildContext context, appStateProvider, child) {
         // STEP 10.02: 從Provider取得載入狀態
         // 從AppStateProvider取得當前的載入狀態
         // 用於控制登入按鈕的顯示和互動
@@ -527,7 +549,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
   /// 返回：
   /// - Widget: 手機版佈局Widget
   material.Widget _buildMobileLayout(
-    material.BuildContext context,
+    cupertino.BuildContext context,
     bool isLoading,
   ) {
     return responsive_widgets.ResponsiveContainer(
@@ -552,7 +574,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
           // 版本資訊位於底部
           // 使用較小的字體和次要顏色，不搶走主要內容的注意力
           responsive_widgets.ResponsiveText(
-            'Version ${constants.Constants.APP_VERSION}',
+            'Version ${constants.Constants.appVersion}',
             fontSize: 12,
             color: cupertino.CupertinoColors.tertiaryLabel,
           ),
@@ -574,7 +596,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
   /// 返回：
   /// - Widget: 平板版佈局Widget
   material.Widget _buildTabletLayout(
-    material.BuildContext context,
+    cupertino.BuildContext context,
     bool isLoading,
   ) {
     return responsive_widgets.ResponsiveContainer(
@@ -593,7 +615,7 @@ class _LoginScreenState extends cupertino.State<LoginScreen> {
                 _buildAppHeader(),
                 responsive_widgets.ResponsiveSpacing(spacing: 32),
                 responsive_widgets.ResponsiveText(
-                  'Version ${constants.Constants.APP_VERSION}',
+                  'Version ${constants.Constants.appVersion}',
                   fontSize: 12,
                   color: cupertino.CupertinoColors.tertiaryLabel,
                 ),

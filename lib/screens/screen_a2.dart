@@ -153,16 +153,14 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
   /// STEP 08: 建立頁面資訊卡片
   cupertino.Widget _buildPageInfoCard() {
     return cupertino.Container(
-      padding: const cupertino.EdgeInsets.all(
-        constants.Constants.SPACING_LARGE,
-      ),
+      padding: const cupertino.EdgeInsets.all(constants.Constants.spacingLarge),
       decoration: cupertino.BoxDecoration(
-        color: cupertino.CupertinoColors.systemPurple.withOpacity(0.1),
+        color: cupertino.CupertinoColors.systemPurple.withValues(alpha: 0.1),
         borderRadius: cupertino.BorderRadius.circular(
-          constants.Constants.BORDER_RADIUS_LARGE,
+          constants.Constants.borderRadiusLarge,
         ),
         border: cupertino.Border.all(
-          color: cupertino.CupertinoColors.systemPurple.withOpacity(0.3),
+          color: cupertino.CupertinoColors.systemPurple.withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -174,27 +172,27 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
               cupertino.Icon(
                 cupertino.CupertinoIcons.location_fill,
                 color: cupertino.CupertinoColors.systemPurple,
-                size: constants.Constants.ICON_SIZE_MEDIUM,
+                size: constants.Constants.iconSizeMedium,
               ),
-              cupertino.SizedBox(width: constants.Constants.SPACING_SMALL),
+              cupertino.SizedBox(width: constants.Constants.spacingSmall),
               cupertino.Text(
                 '當前位置：第二層',
                 style: cupertino.TextStyle(
-                  fontSize: constants.Constants.FONT_SIZE_LARGE,
+                  fontSize: constants.Constants.fontSizeLarge,
                   fontWeight: cupertino.FontWeight.bold,
                   color: cupertino.CupertinoColors.systemPurple,
                 ),
               ),
             ],
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+          const cupertino.SizedBox(height: constants.Constants.spacingMedium),
 
           _buildInfoRow('來源頁面', widget.fromPage),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.spacingSmall),
           _buildInfoRow('導航深度', '第 ${widget.navigationCount} 層'),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.spacingSmall),
           _buildInfoRow('停留時間', _calculateStayDuration()),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.spacingSmall),
           _buildInfoRow('導航層數', '${_navigationHistory.length} 層'),
         ],
       ),
@@ -204,13 +202,11 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
   /// STEP 09: 建立訊息卡片
   cupertino.Widget _buildMessageCard() {
     return cupertino.Container(
-      padding: const cupertino.EdgeInsets.all(
-        constants.Constants.SPACING_LARGE,
-      ),
+      padding: const cupertino.EdgeInsets.all(constants.Constants.spacingLarge),
       decoration: cupertino.BoxDecoration(
         color: cupertino.CupertinoColors.systemBackground,
         borderRadius: cupertino.BorderRadius.circular(
-          constants.Constants.BORDER_RADIUS_LARGE,
+          constants.Constants.borderRadiusLarge,
         ),
         border: cupertino.Border.all(
           color: cupertino.CupertinoColors.systemGrey4,
@@ -225,35 +221,35 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
               cupertino.Icon(
                 cupertino.CupertinoIcons.mail,
                 color: cupertino.CupertinoColors.systemBlue,
-                size: constants.Constants.ICON_SIZE_MEDIUM,
+                size: constants.Constants.iconSizeMedium,
               ),
-              cupertino.SizedBox(width: constants.Constants.SPACING_SMALL),
+              cupertino.SizedBox(width: constants.Constants.spacingSmall),
               cupertino.Text(
                 '傳遞的訊息',
                 style: cupertino.TextStyle(
-                  fontSize: constants.Constants.FONT_SIZE_LARGE,
+                  fontSize: constants.Constants.fontSizeLarge,
                   fontWeight: cupertino.FontWeight.bold,
                   color: cupertino.CupertinoColors.label,
                 ),
               ),
             ],
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+          const cupertino.SizedBox(height: constants.Constants.spacingMedium),
 
           cupertino.Container(
             padding: const cupertino.EdgeInsets.all(
-              constants.Constants.SPACING_MEDIUM,
+              constants.Constants.spacingMedium,
             ),
             decoration: cupertino.BoxDecoration(
               color: cupertino.CupertinoColors.systemGrey6,
               borderRadius: cupertino.BorderRadius.circular(
-                constants.Constants.BORDER_RADIUS_MEDIUM,
+                constants.Constants.borderRadiusMedium,
               ),
             ),
             child: cupertino.Text(
               widget.message,
               style: const cupertino.TextStyle(
-                fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                fontSize: constants.Constants.fontSizeMedium,
                 color: cupertino.CupertinoColors.label,
                 fontStyle: cupertino.FontStyle.italic,
                 height: 1.4,
@@ -268,13 +264,11 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
   /// STEP 10: 建立互動區域
   cupertino.Widget _buildInteractionArea() {
     return cupertino.Container(
-      padding: const cupertino.EdgeInsets.all(
-        constants.Constants.SPACING_LARGE,
-      ),
+      padding: const cupertino.EdgeInsets.all(constants.Constants.spacingLarge),
       decoration: cupertino.BoxDecoration(
         color: cupertino.CupertinoColors.systemBackground,
         borderRadius: cupertino.BorderRadius.circular(
-          constants.Constants.BORDER_RADIUS_LARGE,
+          constants.Constants.borderRadiusLarge,
         ),
         border: cupertino.Border.all(
           color: cupertino.CupertinoColors.systemGrey4,
@@ -287,26 +281,26 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
           const cupertino.Text(
             '互動功能',
             style: cupertino.TextStyle(
-              fontSize: constants.Constants.FONT_SIZE_LARGE,
+              fontSize: constants.Constants.fontSizeLarge,
               fontWeight: cupertino.FontWeight.bold,
               color: cupertino.CupertinoColors.label,
             ),
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+          const cupertino.SizedBox(height: constants.Constants.spacingMedium),
 
           // 點讚功能
           cupertino.Row(
             children: [
               cupertino.CupertinoButton(
                 padding: const cupertino.EdgeInsets.symmetric(
-                  horizontal: constants.Constants.SPACING_MEDIUM,
-                  vertical: constants.Constants.SPACING_SMALL,
+                  horizontal: constants.Constants.spacingMedium,
+                  vertical: constants.Constants.spacingSmall,
                 ),
                 color: _hasLiked
                     ? cupertino.CupertinoColors.systemRed
                     : cupertino.CupertinoColors.systemGrey5,
                 borderRadius: cupertino.BorderRadius.circular(
-                  constants.Constants.BORDER_RADIUS_MEDIUM,
+                  constants.Constants.borderRadiusMedium,
                 ),
                 onPressed: _handleLike,
                 child: cupertino.Row(
@@ -319,10 +313,10 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
                       color: _hasLiked
                           ? cupertino.CupertinoColors.white
                           : cupertino.CupertinoColors.label,
-                      size: constants.Constants.ICON_SIZE_MEDIUM,
+                      size: constants.Constants.iconSizeMedium,
                     ),
                     const cupertino.SizedBox(
-                      width: constants.Constants.SPACING_SMALL,
+                      width: constants.Constants.spacingSmall,
                     ),
                     cupertino.Text(
                       '喜歡 ($_likeCount)',
@@ -330,23 +324,23 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
                         color: _hasLiked
                             ? cupertino.CupertinoColors.white
                             : cupertino.CupertinoColors.label,
-                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                        fontSize: constants.Constants.fontSizeMedium,
                       ),
                     ),
                   ],
                 ),
               ),
               const cupertino.SizedBox(
-                width: constants.Constants.SPACING_MEDIUM,
+                width: constants.Constants.spacingMedium,
               ),
               cupertino.CupertinoButton(
                 padding: const cupertino.EdgeInsets.symmetric(
-                  horizontal: constants.Constants.SPACING_MEDIUM,
-                  vertical: constants.Constants.SPACING_SMALL,
+                  horizontal: constants.Constants.spacingMedium,
+                  vertical: constants.Constants.spacingSmall,
                 ),
                 color: cupertino.CupertinoColors.systemBlue,
                 borderRadius: cupertino.BorderRadius.circular(
-                  constants.Constants.BORDER_RADIUS_MEDIUM,
+                  constants.Constants.borderRadiusMedium,
                 ),
                 onPressed: _showNavigationPath,
                 child: const cupertino.Row(
@@ -355,16 +349,14 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
                     cupertino.Icon(
                       cupertino.CupertinoIcons.map,
                       color: cupertino.CupertinoColors.white,
-                      size: constants.Constants.ICON_SIZE_MEDIUM,
+                      size: constants.Constants.iconSizeMedium,
                     ),
-                    cupertino.SizedBox(
-                      width: constants.Constants.SPACING_SMALL,
-                    ),
+                    cupertino.SizedBox(width: constants.Constants.spacingSmall),
                     cupertino.Text(
                       '導航路徑',
                       style: cupertino.TextStyle(
                         color: cupertino.CupertinoColors.white,
-                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                        fontSize: constants.Constants.fontSizeMedium,
                       ),
                     ),
                   ],
@@ -373,18 +365,18 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
             ],
           ),
 
-          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+          const cupertino.SizedBox(height: constants.Constants.spacingLarge),
 
           // 回饋輸入
           const cupertino.Text(
             '回饋意見',
             style: cupertino.TextStyle(
-              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+              fontSize: constants.Constants.fontSizeMedium,
               fontWeight: cupertino.FontWeight.w600,
               color: cupertino.CupertinoColors.label,
             ),
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.spacingSmall),
 
           cupertino.CupertinoTextField(
             placeholder: '請分享您對導航體驗的想法...',
@@ -400,15 +392,15 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
                 width: 1,
               ),
               borderRadius: cupertino.BorderRadius.circular(
-                constants.Constants.BORDER_RADIUS_MEDIUM,
+                constants.Constants.borderRadiusMedium,
               ),
             ),
             padding: const cupertino.EdgeInsets.all(
-              constants.Constants.SPACING_MEDIUM,
+              constants.Constants.spacingMedium,
             ),
             maxLines: 3,
             style: const cupertino.TextStyle(
-              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+              fontSize: constants.Constants.fontSizeMedium,
             ),
           ),
         ],
@@ -424,14 +416,14 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
         cupertino.Text(
           label,
           style: const cupertino.TextStyle(
-            fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+            fontSize: constants.Constants.fontSizeMedium,
             color: cupertino.CupertinoColors.secondaryLabel,
           ),
         ),
         cupertino.Text(
           value,
           style: const cupertino.TextStyle(
-            fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+            fontSize: constants.Constants.fontSizeMedium,
             fontWeight: cupertino.FontWeight.w600,
             color: cupertino.CupertinoColors.label,
           ),
@@ -451,7 +443,7 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
     return cupertino.CupertinoButton(
       color: isSecondary ? cupertino.CupertinoColors.systemGrey5 : color,
       borderRadius: cupertino.BorderRadius.circular(
-        constants.Constants.BORDER_RADIUS_MEDIUM,
+        constants.Constants.borderRadiusMedium,
       ),
       onPressed: onPressed,
       child: cupertino.Row(
@@ -462,16 +454,16 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
             color: isSecondary
                 ? cupertino.CupertinoColors.label
                 : cupertino.CupertinoColors.white,
-            size: constants.Constants.ICON_SIZE_MEDIUM,
+            size: constants.Constants.iconSizeMedium,
           ),
-          const cupertino.SizedBox(width: constants.Constants.SPACING_SMALL),
+          const cupertino.SizedBox(width: constants.Constants.spacingSmall),
           cupertino.Text(
             title,
             style: cupertino.TextStyle(
               color: isSecondary
                   ? cupertino.CupertinoColors.label
                   : cupertino.CupertinoColors.white,
-              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+              fontSize: constants.Constants.fontSizeMedium,
               fontWeight: cupertino.FontWeight.w600,
             ),
           ),
@@ -488,7 +480,7 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
         middle: const cupertino.Text(
           'A2頁面 - 第二層',
           style: cupertino.TextStyle(
-            fontSize: constants.Constants.FONT_SIZE_LARGE,
+            fontSize: constants.Constants.fontSizeLarge,
             fontWeight: cupertino.FontWeight.w600,
           ),
         ),
@@ -504,42 +496,42 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
       child: cupertino.SafeArea(
         child: cupertino.ListView(
           padding: const cupertino.EdgeInsets.all(
-            constants.Constants.SPACING_LARGE,
+            constants.Constants.spacingLarge,
           ),
           children: [
             // STEP 14.01: 頁面標題
             const cupertino.Text(
               '第二層跳轉頁面',
               style: cupertino.TextStyle(
-                fontSize: constants.Constants.FONT_SIZE_EXTRA_LARGE,
+                fontSize: constants.Constants.fontSizeExtraLarge,
                 fontWeight: cupertino.FontWeight.bold,
                 color: cupertino.CupertinoColors.label,
               ),
             ),
-            const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+            const cupertino.SizedBox(height: constants.Constants.spacingSmall),
             cupertino.Text(
               '從「${widget.fromPage}」導航而來',
               style: const cupertino.TextStyle(
-                fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                fontSize: constants.Constants.fontSizeMedium,
                 color: cupertino.CupertinoColors.secondaryLabel,
               ),
             ),
             const cupertino.SizedBox(
-              height: constants.Constants.SPACING_EXTRA_LARGE,
+              height: constants.Constants.spacingExtraLarge,
             ),
 
             // STEP 14.02: 頁面資訊
             _buildPageInfoCard(),
-            const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+            const cupertino.SizedBox(height: constants.Constants.spacingLarge),
 
             // STEP 14.03: 傳遞的訊息
             _buildMessageCard(),
-            const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+            const cupertino.SizedBox(height: constants.Constants.spacingLarge),
 
             // STEP 14.04: 互動區域
             _buildInteractionArea(),
             const cupertino.SizedBox(
-              height: constants.Constants.SPACING_EXTRA_LARGE,
+              height: constants.Constants.spacingExtraLarge,
             ),
 
             // STEP 14.05: 操作按鈕
@@ -547,11 +539,9 @@ class _ScreenA2State extends cupertino.State<ScreenA2> {
               title: '返回上一頁',
               icon: cupertino.CupertinoIcons.arrow_left_circle,
               onPressed: _goBack,
-              color: cupertino.CupertinoColors.activeBlue,
+              color: cupertino.CupertinoColors.systemBlue,
             ),
-            const cupertino.SizedBox(
-              height: constants.Constants.SPACING_MEDIUM,
-            ),
+            const cupertino.SizedBox(height: constants.Constants.spacingMedium),
 
             _buildActionButton(
               title: '返回A頁面',

@@ -111,19 +111,19 @@ class _ScreenBState extends cupertino.State<ScreenB> {
     }
 
     // STEP 01.03: 驗證訊息長度是否達到最小要求
-    if (content.length < constants.Constants.MIN_MESSAGE_LENGTH) {
+    if (content.length < constants.Constants.minMessageLength) {
       _showErrorDialog(
         '輸入錯誤',
-        '訊息長度至少需要 ${constants.Constants.MIN_MESSAGE_LENGTH} 個字元',
+        '訊息長度至少需要 ${constants.Constants.minMessageLength} 個字元',
       );
       return;
     }
 
     // STEP 01.04: 驗證訊息長度是否超過最大限制
-    if (content.length > constants.Constants.MAX_MESSAGE_LENGTH) {
+    if (content.length > constants.Constants.maxMessageLength) {
       _showErrorDialog(
         '輸入錯誤',
-        '訊息長度不能超過 ${constants.Constants.MAX_MESSAGE_LENGTH} 個字元',
+        '訊息長度不能超過 ${constants.Constants.maxMessageLength} 個字元',
       );
       return;
     }
@@ -149,7 +149,7 @@ class _ScreenBState extends cupertino.State<ScreenB> {
 
         // 呼叫資料庫服務更新訊息
         await _databaseService.updateMessage(updatedMessage);
-        _showSuccessMessage(constants.Constants.SUCCESS_MESSAGE_UPDATED);
+        _showSuccessMessage(constants.Constants.successMessageUpdated);
 
         // 重置編輯狀態
         _editingMessageId = null;
@@ -164,7 +164,7 @@ class _ScreenBState extends cupertino.State<ScreenB> {
 
         // 呼叫資料庫服務插入新訊息
         await _databaseService.insertMessage(newMessage);
-        _showSuccessMessage(constants.Constants.SUCCESS_MESSAGE_SAVED);
+        _showSuccessMessage(constants.Constants.successMessageSaved);
       }
 
       // STEP 01.08: 清理輸入框並重新載入訊息列表
@@ -194,7 +194,7 @@ class _ScreenBState extends cupertino.State<ScreenB> {
     try {
       // STEP 01.03: 呼叫資料庫服務刪除訊息
       await _databaseService.deleteMessage(messageId);
-      _showSuccessMessage(constants.Constants.SUCCESS_MESSAGE_DELETED);
+      _showSuccessMessage(constants.Constants.successMessageDeleted);
 
       // STEP 01.04: 重新載入訊息列表
       await _loadMessages();
@@ -314,14 +314,12 @@ class _ScreenBState extends cupertino.State<ScreenB> {
   cupertino.Widget _buildInputArea() {
     return cupertino.Container(
       // STEP 01.01: 設定容器的內邊距
-      padding: const cupertino.EdgeInsets.all(
-        constants.Constants.SPACING_LARGE,
-      ),
+      padding: const cupertino.EdgeInsets.all(constants.Constants.spacingLarge),
       // STEP 01.02: 設定容器的裝飾樣式
       decoration: cupertino.BoxDecoration(
         color: cupertino.CupertinoColors.systemBackground,
         borderRadius: cupertino.BorderRadius.circular(
-          constants.Constants.BORDER_RADIUS_LARGE,
+          constants.Constants.borderRadiusLarge,
         ),
         border: cupertino.Border.all(
           color: cupertino.CupertinoColors.systemGrey4,
@@ -340,16 +338,14 @@ class _ScreenBState extends cupertino.State<ScreenB> {
                     ? cupertino.CupertinoIcons.pencil
                     : cupertino.CupertinoIcons.plus,
                 color: cupertino.CupertinoColors.systemBlue,
-                size: constants.Constants.ICON_SIZE_MEDIUM,
+                size: constants.Constants.iconSizeMedium,
               ),
-              const cupertino.SizedBox(
-                width: constants.Constants.SPACING_SMALL,
-              ),
+              const cupertino.SizedBox(width: constants.Constants.spacingSmall),
               // STEP 01.03.02: 標題文字
               cupertino.Text(
                 _editingMessageId != null ? '編輯訊息' : '新增訊息',
                 style: const cupertino.TextStyle(
-                  fontSize: constants.Constants.FONT_SIZE_LARGE,
+                  fontSize: constants.Constants.fontSizeLarge,
                   fontWeight: cupertino.FontWeight.bold,
                   color: cupertino.CupertinoColors.label,
                 ),
@@ -364,21 +360,21 @@ class _ScreenBState extends cupertino.State<ScreenB> {
                     '取消',
                     style: cupertino.TextStyle(
                       color: cupertino.CupertinoColors.systemRed,
-                      fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                      fontSize: constants.Constants.fontSizeMedium,
                     ),
                   ),
                 ),
               ],
             ],
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+          const cupertino.SizedBox(height: constants.Constants.spacingMedium),
 
           // STEP 01.04: 文字輸入框
           cupertino.CupertinoTextField(
             controller: _messageController,
             placeholder: '請輸入您的訊息...',
             maxLines: 4,
-            maxLength: constants.Constants.MAX_MESSAGE_LENGTH,
+            maxLength: constants.Constants.maxMessageLength,
             decoration: cupertino.BoxDecoration(
               color: cupertino.CupertinoColors.systemGrey6,
               border: cupertino.Border.all(
@@ -386,29 +382,29 @@ class _ScreenBState extends cupertino.State<ScreenB> {
                 width: 1,
               ),
               borderRadius: cupertino.BorderRadius.circular(
-                constants.Constants.BORDER_RADIUS_MEDIUM,
+                constants.Constants.borderRadiusMedium,
               ),
             ),
             padding: const cupertino.EdgeInsets.all(
-              constants.Constants.SPACING_MEDIUM,
+              constants.Constants.spacingMedium,
             ),
             style: const cupertino.TextStyle(
-              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+              fontSize: constants.Constants.fontSizeMedium,
             ),
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+          const cupertino.SizedBox(height: constants.Constants.spacingMedium),
 
           // STEP 01.05: 字數統計和儲存按鈕列
           cupertino.Row(
             children: [
               // STEP 01.05.01: 字數統計顯示
               cupertino.Text(
-                '${_messageController.text.length}/${constants.Constants.MAX_MESSAGE_LENGTH}',
+                '${_messageController.text.length}/${constants.Constants.maxMessageLength}',
                 style: cupertino.TextStyle(
-                  fontSize: constants.Constants.FONT_SIZE_SMALL,
+                  fontSize: constants.Constants.fontSizeSmall,
                   color:
                       _messageController.text.length >
-                          constants.Constants.MAX_MESSAGE_LENGTH
+                          constants.Constants.maxMessageLength
                       ? cupertino.CupertinoColors.systemRed
                       : cupertino.CupertinoColors.secondaryLabel,
                 ),
@@ -416,9 +412,9 @@ class _ScreenBState extends cupertino.State<ScreenB> {
               const cupertino.Spacer(),
               // STEP 01.05.02: 儲存/更新按鈕
               cupertino.CupertinoButton(
-                color: cupertino.CupertinoColors.activeBlue,
+                color: cupertino.CupertinoColors.systemBlue,
                 borderRadius: cupertino.BorderRadius.circular(
-                  constants.Constants.BORDER_RADIUS_MEDIUM,
+                  constants.Constants.borderRadiusMedium,
                 ),
                 onPressed: _isLoading ? null : _saveMessage,
                 child: cupertino.Row(
@@ -431,7 +427,7 @@ class _ScreenBState extends cupertino.State<ScreenB> {
                         color: cupertino.CupertinoColors.white,
                       ),
                       const cupertino.SizedBox(
-                        width: constants.Constants.SPACING_SMALL,
+                        width: constants.Constants.spacingSmall,
                       ),
                     ],
                     // STEP 01.05.02.02: 按鈕圖示
@@ -440,17 +436,17 @@ class _ScreenBState extends cupertino.State<ScreenB> {
                           ? cupertino.CupertinoIcons.check_mark
                           : cupertino.CupertinoIcons.add,
                       color: cupertino.CupertinoColors.white,
-                      size: constants.Constants.ICON_SIZE_SMALL,
+                      size: constants.Constants.iconSizeSmall,
                     ),
                     const cupertino.SizedBox(
-                      width: constants.Constants.SPACING_SMALL,
+                      width: constants.Constants.spacingSmall,
                     ),
                     // STEP 01.05.02.03: 按鈕文字
                     cupertino.Text(
                       _editingMessageId != null ? '更新' : '儲存',
                       style: const cupertino.TextStyle(
                         color: cupertino.CupertinoColors.white,
-                        fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                        fontSize: constants.Constants.fontSizeMedium,
                         fontWeight: cupertino.FontWeight.w600,
                       ),
                     ),
@@ -473,11 +469,11 @@ class _ScreenBState extends cupertino.State<ScreenB> {
         child: cupertino.Column(
           children: [
             cupertino.CupertinoActivityIndicator(radius: 20),
-            cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+            cupertino.SizedBox(height: constants.Constants.spacingMedium),
             cupertino.Text(
               '載入中...',
               style: cupertino.TextStyle(
-                fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                fontSize: constants.Constants.fontSizeMedium,
                 color: cupertino.CupertinoColors.secondaryLabel,
               ),
             ),
@@ -494,27 +490,25 @@ class _ScreenBState extends cupertino.State<ScreenB> {
             // STEP 01.02.01: 空狀態圖示
             cupertino.Icon(
               cupertino.CupertinoIcons.chat_bubble_text,
-              size: constants.Constants.ICON_SIZE_EXTRA_LARGE * 2,
+              size: constants.Constants.iconSizeExtraLarge * 2,
               color: cupertino.CupertinoColors.systemGrey3,
             ),
-            const cupertino.SizedBox(
-              height: constants.Constants.SPACING_MEDIUM,
-            ),
+            const cupertino.SizedBox(height: constants.Constants.spacingMedium),
             // STEP 01.02.02: 空狀態標題
             const cupertino.Text(
               '還沒有任何訊息',
               style: cupertino.TextStyle(
-                fontSize: constants.Constants.FONT_SIZE_LARGE,
+                fontSize: constants.Constants.fontSizeLarge,
                 fontWeight: cupertino.FontWeight.bold,
                 color: cupertino.CupertinoColors.secondaryLabel,
               ),
             ),
-            const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+            const cupertino.SizedBox(height: constants.Constants.spacingSmall),
             // STEP 01.02.03: 空狀態描述
             const cupertino.Text(
               '開始輸入您的第一條訊息吧！',
               style: cupertino.TextStyle(
-                fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                fontSize: constants.Constants.fontSizeMedium,
                 color: cupertino.CupertinoColors.tertiaryLabel,
               ),
             ),
@@ -544,19 +538,17 @@ class _ScreenBState extends cupertino.State<ScreenB> {
     return cupertino.Container(
       // STEP 01.02: 設定卡片的外邊距
       margin: const cupertino.EdgeInsets.only(
-        bottom: constants.Constants.SPACING_MEDIUM,
+        bottom: constants.Constants.spacingMedium,
       ),
       // STEP 01.03: 設定卡片的內邊距
-      padding: const cupertino.EdgeInsets.all(
-        constants.Constants.SPACING_LARGE,
-      ),
+      padding: const cupertino.EdgeInsets.all(constants.Constants.spacingLarge),
       // STEP 01.04: 設定卡片的裝飾樣式
       decoration: cupertino.BoxDecoration(
         color: isEditing
             ? cupertino.CupertinoColors.systemBlue.withValues(alpha: 0.1)
             : cupertino.CupertinoColors.systemBackground,
         borderRadius: cupertino.BorderRadius.circular(
-          constants.Constants.BORDER_RADIUS_LARGE,
+          constants.Constants.borderRadiusLarge,
         ),
         border: cupertino.Border.all(
           color: isEditing
@@ -588,16 +580,14 @@ class _ScreenBState extends cupertino.State<ScreenB> {
                 color: isEditing
                     ? cupertino.CupertinoColors.systemBlue
                     : cupertino.CupertinoColors.systemGrey,
-                size: constants.Constants.ICON_SIZE_MEDIUM,
+                size: constants.Constants.iconSizeMedium,
               ),
-              const cupertino.SizedBox(
-                width: constants.Constants.SPACING_SMALL,
-              ),
+              const cupertino.SizedBox(width: constants.Constants.spacingSmall),
               // STEP 01.05.02: 訊息 ID 顯示
               cupertino.Text(
                 'ID: ${message.id ?? '新建'}',
                 style: cupertino.TextStyle(
-                  fontSize: constants.Constants.FONT_SIZE_SMALL,
+                  fontSize: constants.Constants.fontSizeSmall,
                   color: isEditing
                       ? cupertino.CupertinoColors.systemBlue
                       : cupertino.CupertinoColors.secondaryLabel,
@@ -615,7 +605,7 @@ class _ScreenBState extends cupertino.State<ScreenB> {
                   color: isEditing
                       ? cupertino.CupertinoColors.systemBlue
                       : cupertino.CupertinoColors.systemGrey,
-                  size: constants.Constants.ICON_SIZE_SMALL,
+                  size: constants.Constants.iconSizeSmall,
                 ),
                 onPressed: () => _editMessage(message),
               ),
@@ -628,45 +618,43 @@ class _ScreenBState extends cupertino.State<ScreenB> {
                 child: const cupertino.Icon(
                   cupertino.CupertinoIcons.delete,
                   color: cupertino.CupertinoColors.systemRed,
-                  size: constants.Constants.ICON_SIZE_SMALL,
+                  size: constants.Constants.iconSizeSmall,
                 ),
               ),
             ],
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+          const cupertino.SizedBox(height: constants.Constants.spacingMedium),
 
           // STEP 01.06: 訊息內容區域
           cupertino.Container(
             padding: const cupertino.EdgeInsets.all(
-              constants.Constants.SPACING_MEDIUM,
+              constants.Constants.spacingMedium,
             ),
             decoration: cupertino.BoxDecoration(
               color: isEditing
                   ? cupertino.CupertinoColors.systemBlue.withValues(alpha: 0.05)
                   : cupertino.CupertinoColors.systemGrey6,
               borderRadius: cupertino.BorderRadius.circular(
-                constants.Constants.BORDER_RADIUS_MEDIUM,
+                constants.Constants.borderRadiusMedium,
               ),
             ),
             child: cupertino.Text(
               message.content,
               style: const cupertino.TextStyle(
-                fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                fontSize: constants.Constants.fontSizeMedium,
                 color: cupertino.CupertinoColors.label,
                 height: 1.4,
               ),
             ),
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+          const cupertino.SizedBox(height: constants.Constants.spacingMedium),
 
           // STEP 01.07: 時間資訊區域
           cupertino.Row(
             children: [
               // STEP 01.07.01: 建立時間
               _buildTimeInfo('建立', message.createdAt),
-              const cupertino.SizedBox(
-                width: constants.Constants.SPACING_LARGE,
-              ),
+              const cupertino.SizedBox(width: constants.Constants.spacingLarge),
               // STEP 01.07.02: 更新時間
               _buildTimeInfo('更新', message.updatedAt ?? message.createdAt),
             ],
@@ -686,7 +674,7 @@ class _ScreenBState extends cupertino.State<ScreenB> {
         cupertino.Text(
           label,
           style: const cupertino.TextStyle(
-            fontSize: constants.Constants.FONT_SIZE_SMALL,
+            fontSize: constants.Constants.fontSizeSmall,
             color: cupertino.CupertinoColors.tertiaryLabel,
           ),
         ),
@@ -694,7 +682,7 @@ class _ScreenBState extends cupertino.State<ScreenB> {
         cupertino.Text(
           '${dateTime.month}/${dateTime.day} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}',
           style: const cupertino.TextStyle(
-            fontSize: constants.Constants.FONT_SIZE_SMALL,
+            fontSize: constants.Constants.fontSizeSmall,
             color: cupertino.CupertinoColors.secondaryLabel,
             fontWeight: cupertino.FontWeight.w500,
           ),
@@ -708,14 +696,12 @@ class _ScreenBState extends cupertino.State<ScreenB> {
   cupertino.Widget _buildStatsCard() {
     return cupertino.Container(
       // STEP 01.01: 設定統計卡片的內邊距
-      padding: const cupertino.EdgeInsets.all(
-        constants.Constants.SPACING_LARGE,
-      ),
+      padding: const cupertino.EdgeInsets.all(constants.Constants.spacingLarge),
       // STEP 01.02: 設定統計卡片的裝飾樣式
       decoration: cupertino.BoxDecoration(
         color: cupertino.CupertinoColors.systemGreen.withValues(alpha: 0.1),
         borderRadius: cupertino.BorderRadius.circular(
-          constants.Constants.BORDER_RADIUS_LARGE,
+          constants.Constants.borderRadiusLarge,
         ),
         border: cupertino.Border.all(
           color: cupertino.CupertinoColors.systemGreen.withValues(alpha: 0.3),
@@ -728,9 +714,9 @@ class _ScreenBState extends cupertino.State<ScreenB> {
           const cupertino.Icon(
             cupertino.CupertinoIcons.chart_bar,
             color: cupertino.CupertinoColors.systemGreen,
-            size: constants.Constants.ICON_SIZE_MEDIUM,
+            size: constants.Constants.iconSizeMedium,
           ),
-          const cupertino.SizedBox(width: constants.Constants.SPACING_MEDIUM),
+          const cupertino.SizedBox(width: constants.Constants.spacingMedium),
           // STEP 01.04: 統計資訊文字區域
           cupertino.Expanded(
             child: cupertino.Column(
@@ -740,19 +726,19 @@ class _ScreenBState extends cupertino.State<ScreenB> {
                 const cupertino.Text(
                   '資料庫統計',
                   style: cupertino.TextStyle(
-                    fontSize: constants.Constants.FONT_SIZE_LARGE,
+                    fontSize: constants.Constants.fontSizeLarge,
                     fontWeight: cupertino.FontWeight.bold,
                     color: cupertino.CupertinoColors.systemGreen,
                   ),
                 ),
                 const cupertino.SizedBox(
-                  height: constants.Constants.SPACING_SMALL,
+                  height: constants.Constants.spacingSmall,
                 ),
                 // STEP 01.04.02: 統計內容
                 cupertino.Text(
                   '總共儲存了 ${_messages.length} 條訊息',
                   style: const cupertino.TextStyle(
-                    fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+                    fontSize: constants.Constants.fontSizeMedium,
                     color: cupertino.CupertinoColors.label,
                   ),
                 ),
@@ -762,12 +748,12 @@ class _ScreenBState extends cupertino.State<ScreenB> {
           // STEP 01.05: 重新載入按鈕
           cupertino.CupertinoButton(
             padding: const cupertino.EdgeInsets.symmetric(
-              horizontal: constants.Constants.SPACING_MEDIUM,
-              vertical: constants.Constants.SPACING_SMALL,
+              horizontal: constants.Constants.spacingMedium,
+              vertical: constants.Constants.spacingSmall,
             ),
             color: cupertino.CupertinoColors.systemGreen,
             borderRadius: cupertino.BorderRadius.circular(
-              constants.Constants.BORDER_RADIUS_MEDIUM,
+              constants.Constants.borderRadiusMedium,
             ),
             onPressed: _loadMessages,
             child: const cupertino.Row(
@@ -776,14 +762,14 @@ class _ScreenBState extends cupertino.State<ScreenB> {
                 cupertino.Icon(
                   cupertino.CupertinoIcons.refresh,
                   color: cupertino.CupertinoColors.white,
-                  size: constants.Constants.ICON_SIZE_SMALL,
+                  size: constants.Constants.iconSizeSmall,
                 ),
-                cupertino.SizedBox(width: constants.Constants.SPACING_SMALL),
+                cupertino.SizedBox(width: constants.Constants.spacingSmall),
                 cupertino.Text(
                   '重新載入',
                   style: cupertino.TextStyle(
                     color: cupertino.CupertinoColors.white,
-                    fontSize: constants.Constants.FONT_SIZE_SMALL,
+                    fontSize: constants.Constants.fontSizeSmall,
                   ),
                 ),
               ],
@@ -802,39 +788,39 @@ class _ScreenBState extends cupertino.State<ScreenB> {
       child: cupertino.ListView(
         // STEP 01.01: 設定頁面的內邊距
         padding: const cupertino.EdgeInsets.all(
-          constants.Constants.SPACING_LARGE,
+          constants.Constants.spacingLarge,
         ),
         children: [
           // STEP 01.02: 頁面標題區域
           const cupertino.Text(
             '資料儲存功能',
             style: cupertino.TextStyle(
-              fontSize: constants.Constants.FONT_SIZE_EXTRA_LARGE,
+              fontSize: constants.Constants.fontSizeExtraLarge,
               fontWeight: cupertino.FontWeight.bold,
               color: cupertino.CupertinoColors.label,
             ),
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_SMALL),
+          const cupertino.SizedBox(height: constants.Constants.spacingSmall),
           const cupertino.Text(
             '使用本地端SQLite資料庫儲存和管理您的訊息',
             style: cupertino.TextStyle(
-              fontSize: constants.Constants.FONT_SIZE_MEDIUM,
+              fontSize: constants.Constants.fontSizeMedium,
               color: cupertino.CupertinoColors.secondaryLabel,
               height: 1.5,
             ),
           ),
           const cupertino.SizedBox(
-            height: constants.Constants.SPACING_EXTRA_LARGE,
+            height: constants.Constants.spacingExtraLarge,
           ),
 
           // STEP 01.03: 統計卡片
           _buildStatsCard(),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_LARGE),
+          const cupertino.SizedBox(height: constants.Constants.spacingLarge),
 
           // STEP 01.04: 輸入區域
           _buildInputArea(),
           const cupertino.SizedBox(
-            height: constants.Constants.SPACING_EXTRA_LARGE,
+            height: constants.Constants.spacingExtraLarge,
           ),
 
           // STEP 01.05: 訊息列表標題
@@ -844,16 +830,14 @@ class _ScreenBState extends cupertino.State<ScreenB> {
               const cupertino.Icon(
                 cupertino.CupertinoIcons.list_bullet,
                 color: cupertino.CupertinoColors.systemBlue,
-                size: constants.Constants.ICON_SIZE_MEDIUM,
+                size: constants.Constants.iconSizeMedium,
               ),
-              const cupertino.SizedBox(
-                width: constants.Constants.SPACING_SMALL,
-              ),
+              const cupertino.SizedBox(width: constants.Constants.spacingSmall),
               // STEP 01.05.02: 列表標題
               const cupertino.Text(
                 '儲存的訊息',
                 style: cupertino.TextStyle(
-                  fontSize: constants.Constants.FONT_SIZE_LARGE,
+                  fontSize: constants.Constants.fontSizeLarge,
                   fontWeight: cupertino.FontWeight.bold,
                   color: cupertino.CupertinoColors.label,
                 ),
@@ -864,7 +848,7 @@ class _ScreenBState extends cupertino.State<ScreenB> {
                 const cupertino.CupertinoActivityIndicator(radius: 10),
             ],
           ),
-          const cupertino.SizedBox(height: constants.Constants.SPACING_MEDIUM),
+          const cupertino.SizedBox(height: constants.Constants.spacingMedium),
 
           // STEP 01.06: 訊息列表
           _buildMessagesList(),

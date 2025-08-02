@@ -12,7 +12,7 @@ void main() {
     test('建立新訊息模型', () {
       // 建立測試訊息
       final message = message_model.MessageModel.create(content: '測試訊息');
-      
+
       // 驗證訊息內容
       expect(message.content, '測試訊息');
       expect(message.id, isNull);
@@ -28,10 +28,10 @@ void main() {
         'created_at': DateTime.now().millisecondsSinceEpoch,
         'updated_at': null,
       };
-      
+
       // 從Map建立模型
       final message = message_model.MessageModel.fromMap(testData);
-      
+
       // 驗證資料
       expect(message.id, 1);
       expect(message.content, '測試內容');
@@ -48,10 +48,10 @@ void main() {
         createdAt: now,
         updatedAt: null,
       );
-      
+
       // 轉換為Map
       final map = message.toMap();
-      
+
       // 驗證Map內容
       expect(map['id'], 1);
       expect(map['content'], '測試訊息');
@@ -61,11 +61,13 @@ void main() {
 
     test('更新訊息內容', () {
       // 建立原始訊息
-      final originalMessage = message_model.MessageModel.create(content: '原始內容');
-      
+      final originalMessage = message_model.MessageModel.create(
+        content: '原始內容',
+      );
+
       // 更新內容
       final updatedMessage = originalMessage.updateContent('更新後的內容');
-      
+
       // 驗證更新結果
       expect(updatedMessage.content, '更新後的內容');
       expect(updatedMessage.updatedAt, isNotNull);
@@ -74,20 +76,26 @@ void main() {
 
     test('JSON序列化和反序列化', () {
       // 建立測試訊息
-      final originalMessage = message_model.MessageModel.create(content: 'JSON測試');
-      
+      final originalMessage = message_model.MessageModel.create(
+        content: 'JSON測試',
+      );
+
       // 轉換為JSON
       final jsonString = originalMessage.toJson();
       expect(jsonString, isNotEmpty);
-      
+
       // 從JSON重建
-      final reconstructedMessage = message_model.MessageModel.fromJson(jsonString);
-      
+      final reconstructedMessage = message_model.MessageModel.fromJson(
+        jsonString,
+      );
+
       // 驗證重建的訊息
       expect(reconstructedMessage.content, originalMessage.content);
       // 比較毫秒數而非DateTime物件，避免精度問題
-      expect(reconstructedMessage.createdAt.millisecondsSinceEpoch, 
-             originalMessage.createdAt.millisecondsSinceEpoch);
+      expect(
+        reconstructedMessage.createdAt.millisecondsSinceEpoch,
+        originalMessage.createdAt.millisecondsSinceEpoch,
+      );
     });
 
     test('訊息相等性比較', () {
@@ -99,14 +107,14 @@ void main() {
         createdAt: now,
         updatedAt: null,
       );
-      
+
       final message2 = message_model.MessageModel(
         id: 1,
         content: '測試',
         createdAt: now,
         updatedAt: null,
       );
-      
+
       // 驗證相等性
       expect(message1, equals(message2));
       expect(message1.hashCode, equals(message2.hashCode));
@@ -121,14 +129,14 @@ void main() {
         createdAt: now,
         updatedAt: null,
       );
-      
+
       final message2 = message_model.MessageModel(
         id: 2,
         content: '測試2',
         createdAt: now,
         updatedAt: null,
       );
-      
+
       // 驗證不等性
       expect(message1, isNot(equals(message2)));
       expect(message1.hashCode, isNot(equals(message2.hashCode)));
@@ -137,28 +145,37 @@ void main() {
 
   group('Constants 測試', () {
     test('資料庫常數', () {
-      expect(constants.Constants.DATABASE_NAME, 'hello_world.db');
-      expect(constants.Constants.DATABASE_VERSION, 1);
-      expect(constants.Constants.TABLE_MESSAGES, 'messages');
+      expect(constants.Constants.databaseName, 'hello_world.db');
+      expect(constants.Constants.databaseVersion, 1);
+      expect(constants.Constants.tableMessages, 'messages');
     });
 
     test('欄位常數', () {
-      expect(constants.Constants.COLUMN_ID, 'id');
-      expect(constants.Constants.COLUMN_CONTENT, 'content');
-      expect(constants.Constants.COLUMN_CREATED_AT, 'created_at');
-      expect(constants.Constants.COLUMN_UPDATED_AT, 'updated_at');
+      expect(constants.Constants.columnId, 'id');
+      expect(constants.Constants.columnContent, 'content');
+      expect(constants.Constants.columnCreatedAt, 'created_at');
+      expect(constants.Constants.columnUpdatedAt, 'updated_at');
     });
 
     test('驗證規則', () {
-      expect(constants.Constants.MIN_MESSAGE_LENGTH, 1);
-      expect(constants.Constants.MAX_MESSAGE_LENGTH, 500);
+      expect(constants.Constants.minMessageLength, 1);
+      expect(constants.Constants.maxMessageLength, 500);
     });
 
     test('SQL建表語句', () {
-      expect(constants.Constants.CREATE_TABLE_MESSAGES, contains('CREATE TABLE'));
-      expect(constants.Constants.CREATE_TABLE_MESSAGES, contains(constants.Constants.TABLE_MESSAGES));
-      expect(constants.Constants.CREATE_TABLE_MESSAGES, contains(constants.Constants.COLUMN_ID));
-      expect(constants.Constants.CREATE_TABLE_MESSAGES, contains(constants.Constants.COLUMN_CONTENT));
+      expect(constants.Constants.createTableMessages, contains('CREATE TABLE'));
+      expect(
+        constants.Constants.createTableMessages,
+        contains(constants.Constants.tableMessages),
+      );
+      expect(
+        constants.Constants.createTableMessages,
+        contains(constants.Constants.columnId),
+      );
+      expect(
+        constants.Constants.createTableMessages,
+        contains(constants.Constants.columnContent),
+      );
     });
   });
-} 
+}
