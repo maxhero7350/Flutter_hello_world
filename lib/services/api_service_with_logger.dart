@@ -31,11 +31,14 @@ class ApiServiceWithLogger {
     try {
       // STEP 01.01: 檢查網路連線
       final connectivityResult = await _connectivity.checkConnectivity();
-      final isConnected =
-          connectivityResult != connectivity.ConnectivityResult.none;
+      final isConnected = connectivityResult.isNotEmpty &&
+          !connectivityResult.contains(connectivity.ConnectivityResult.none);
 
       // STEP 01.02: 記錄網路狀態
-      logger_util.LoggerUtil.network('網路連線狀態: ${connectivityResult.name}');
+      final networkTypes = connectivityResult
+          .map((result) => result.name)
+          .join(', ');
+      logger_util.LoggerUtil.network('網路連線狀態: $networkTypes');
 
       return isConnected;
     } catch (e) {
@@ -304,7 +307,7 @@ class ApiServiceWithLogger {
   }
 
   /// STEP 12: 監聽網路狀態變化
-  Stream<connectivity.ConnectivityResult> get connectivityStream {
+  Stream<List<connectivity.ConnectivityResult>> get connectivityStream {
     return _connectivity.onConnectivityChanged;
   }
 
@@ -315,24 +318,20 @@ class ApiServiceWithLogger {
       final connectivityResult = await _connectivity.checkConnectivity();
       String networkType;
 
-      switch (connectivityResult) {
-        case connectivity.ConnectivityResult.wifi:
-          networkType = 'WiFi';
-          break;
-        case connectivity.ConnectivityResult.mobile:
-          networkType = '行動網路';
-          break;
-        case connectivity.ConnectivityResult.ethernet:
-          networkType = '有線網路';
-          break;
-        case connectivity.ConnectivityResult.bluetooth:
-          networkType = '藍牙';
-          break;
-        case connectivity.ConnectivityResult.none:
-          networkType = '無網路連線';
-          break;
-        default:
-          networkType = '未知';
+      if (connectivityResult.isEmpty) {
+        networkType = '無網路連線';
+      } else if (connectivityResult.contains(connectivity.ConnectivityResult.none)) {
+        networkType = '無網路連線';
+      } else if (connectivityResult.contains(connectivity.ConnectivityResult.wifi)) {
+        networkType = 'WiFi';
+      } else if (connectivityResult.contains(connectivity.ConnectivityResult.mobile)) {
+        networkType = '行動網路';
+      } else if (connectivityResult.contains(connectivity.ConnectivityResult.ethernet)) {
+        networkType = '有線網路';
+      } else if (connectivityResult.contains(connectivity.ConnectivityResult.bluetooth)) {
+        networkType = '藍牙';
+      } else {
+        networkType = '未知';
       }
 
       logger_util.LoggerUtil.network('網路連線類型: $networkType');
@@ -354,10 +353,13 @@ class ApiServiceWithLogger {
 
       if (!connected) {
         logger_util.LoggerUtil.warning('測試API連線失敗：無網路連線');
+        final networkTypes = connectivityResult
+            .map((result) => result.name)
+            .join(', ');
         return {
           'success': false,
           'error': constants.Constants.errorNetwork,
-          'networkStatus': connectivityResult.toString(),
+          'networkStatus': networkTypes,
           'responseTime': 0,
         };
       }
@@ -383,11 +385,14 @@ class ApiServiceWithLogger {
         'API連線測試完成，狀態碼: ${response.statusCode}，回應時間: ${responseTime}ms',
       );
 
+      final networkTypes = connectivityResult
+          .map((result) => result.name)
+          .join(', ');
       return {
         'success': success,
         'statusCode': response.statusCode,
         'responseTime': responseTime,
-        'networkStatus': connectivityResult.toString(),
+        'networkStatus': networkTypes,
         'apiUrl': constants.Constants.timeApiFullUrl,
         'responseSize': response.body.length,
       };

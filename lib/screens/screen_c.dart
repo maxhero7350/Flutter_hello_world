@@ -44,7 +44,7 @@ class _ScreenCState extends cupertino.State<ScreenC> {
   bool _isConnected = false;
   bool _isOfflineMode = false;
 
-  StreamSubscription<connectivity.ConnectivityResult>?
+  StreamSubscription<List<connectivity.ConnectivityResult>>?
   _connectivitySubscription;
   Timer? _autoRefreshTimer;
   int _apiCallCount = 0;
@@ -113,12 +113,13 @@ class _ScreenCState extends cupertino.State<ScreenC> {
   }
 
   /// 處理網路狀態變化
-  void _onConnectivityChanged(connectivity.ConnectivityResult result) {
+  void _onConnectivityChanged(List<connectivity.ConnectivityResult> results) {
     // STEP 01: 重新檢查網路狀態
     _checkNetworkStatus();
 
     // STEP 02: 如果網路恢復連線且開啟自動同步，進行資料同步
-    if (result != connectivity.ConnectivityResult.none &&
+    if (results.isNotEmpty &&
+        !results.contains(connectivity.ConnectivityResult.none) &&
         _offlineSettings['autoSync'] == true) {
       _syncOfflineData();
     }
