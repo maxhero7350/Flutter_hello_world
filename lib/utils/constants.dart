@@ -57,6 +57,12 @@ class Constants {
   static const double iconSizeLarge = 32.0;
   static const double iconSizeExtraLarge = 48.0;
 
+  // ===== 動畫相關常數 =====
+  // 側邊欄動畫時間（毫秒）
+  static const int sidebarAnimationDuration = 300;
+  // 側邊欄動畫曲線
+  static const String sidebarAnimationCurve = 'easeInOut';
+
   // ===== 頁面標識 =====
   static const String pageLogin = 'login';
   static const String pageMain = 'main';
